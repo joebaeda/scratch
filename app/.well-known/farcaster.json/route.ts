@@ -3,8 +3,8 @@ export async function GET() {
   const config = {
     accountAssociation: {
       header: "eyJmaWQiOjg5MTkxNCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDRmYzg1YjUzN2FkYzE4RmYzNTRhMzJDNkUxM0JCRGNEZDk0YTZEMDEifQ",
-      payload: "eyJkb21haW4iOiJzY3JhdGNobmlzbWUudmVyY2VsLmFwcCJ9",
-      signature: "MHg5MmQ4NGMwMTBiMjE0NmRkZGJlZTUyZWQ4MDE2ZjlmOTQ5ODE3YzU4NWEzMmY3MWE5MTQyMGYwMTMzMDg4YTY1MTI4NTA0Yjg3MTkyM2MzM2E3YzY0ODJmZmVlNmJmOGI5ZmM1NWU5YzRkMTRmNjM5MGZkMTA1NWQ0NWNhYTI3MDFj"
+      payload: "eyJkb21haW4iOiJzY3JhdGNobmlzbS52ZXJjZWwuYXBwIn0",
+      signature: "MHg1MTM2ZThmNDgyZTQ5OTgwNDM3YmJhMzIzM2Q2Zjc1MDg5ZmNjYjZjZGNjOWZiYjY3ZTM3MzgzY2UxMjYyOWUwNzQ0ZTEyMDljOWE3NjNlM2E4OWMxYjNjNzE4NzM1Y2I1MDgzYzY3MWE0NTVlMzhmNDFlYTQ0ZTgzNmIyY2U4MDFi"
     },
     frame: {
       name: "Scratch",
