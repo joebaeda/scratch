@@ -9,7 +9,7 @@ export const config = createConfig({
   connectors: [
     coinbaseWallet({
       appName: "Scratch",
-      appLogoUrl: "https://scratchnism.vercel.app/splash.svg",
+      appLogoUrl: "https://scratchnism.vercel.app/scratch.png",
       preference: "smartWalletOnly",
     }),
     frameConnector(),

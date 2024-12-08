@@ -1,6 +1,5 @@
 "use client";
 
-import { sdk } from "@farcaster/frame-sdk";
 import React, { useRef, useState, useEffect } from "react";
 import { SketchPicker } from "react-color";
 import ColorPallete from "./ColorPallete";
@@ -13,7 +12,6 @@ interface Users {
 }
 
 const Mint: React.FC<Users> = (user) => {
-    const [isSDKLoaded, setIsSDKLoaded] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [color, setColor] = useState("#000000");
@@ -120,20 +118,6 @@ const Mint: React.FC<Users> = (user) => {
             link.click();
         }
     };
-
-    useEffect(() => {
-        const load = async () => {
-            sdk.actions.ready();
-        };
-        if (sdk && !isSDKLoaded) {
-            setIsSDKLoaded(true);
-            load();
-        }
-    }, [isSDKLoaded]);
-
-    if (!isSDKLoaded) {
-        return <></>;
-    }
 
     return (
         <div className="bg-gray-50 h-screen relative">
