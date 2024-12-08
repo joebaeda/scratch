@@ -3,7 +3,6 @@
 import "@farcaster/auth-kit/styles.css";
 import { useAccount, useBalance, useDisconnect } from "wagmi";
 import {
-  SignInButton,
   useProfile
 } from "@farcaster/auth-kit";
 import { sdk } from "@farcaster/frame-sdk";
@@ -39,13 +38,8 @@ export default function Home() {
 
   return (
     <main className="bg-slate-500">
-      {address ? isAuthenticated ? (
+      {address && isAuthenticated ? (
         <Mint username={profile.username as string} pfp={profile.pfpUrl as string} />
-      ) : (
-        <div className="p-4 flex justify-between items-center">
-          <h1 className="text-3xl text-white font-extrabold">Scratch.</h1>
-          <SignInButton hideSignOut />
-        </div>
       ) : (
         <div className="p-4 flex justify-between items-center">
           <h1 className="text-3xl text-white font-extrabold">Scratch.</h1>
