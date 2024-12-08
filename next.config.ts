@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'imagedelivery.net, scratchnism.vercel.app',
+        hostname: 'imagedelivery.net',
       },
     ],
   },

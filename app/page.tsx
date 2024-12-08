@@ -2,13 +2,15 @@
 
 import "@farcaster/auth-kit/styles.css";
 import { useAccount, useBalance, useDisconnect } from "wagmi";
+import { useSession, signIn, signOut, getCsrfToken } from "next-auth/react";
 import {
-  useProfile
+  SignInButton,
+  StatusAPIResponse,
 } from "@farcaster/auth-kit";
 import { sdk } from "@farcaster/frame-sdk";
 import Mint from "./components/Mint";
 import { truncateAddress } from "@/lib/truncateAddress";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { formatEther } from "viem";
 import { Wallet } from "./components/Wallet";
 
@@ -20,7 +22,29 @@ export default function Home() {
   const [isConnectWalletOpen, setConnectWalletOpen] = useState(false);
   const [isAccountOpen, setAccountOpen] = useState(false);
 
-  const { isAuthenticated, profile } = useProfile();
+  const [error, setError] = useState(false);
+
+  const getNonce = useCallback(async () => {
+    const nonce = await getCsrfToken();
+    if (!nonce) throw new Error("Unable to generate nonce");
+    return nonce;
+  }, []);
+
+  const { data: session } = useSession();
+
+  const handleSuccess = useCallback(
+    (res: StatusAPIResponse) => {
+      signIn("credentials", {
+        message: res.message,
+        signature: res.signature,
+        name: res.username,
+        pfp: res.pfpUrl,
+        redirect: false,
+      });
+    },
+    []
+  );
+
 
   useEffect(() => {
     const load = async () => {
@@ -38,13 +62,24 @@ export default function Home() {
 
   return (
     <main className="bg-slate-500">
-      {address && isAuthenticated ? (
-        <Mint username={profile.username as string} pfp={profile.pfpUrl as string} />
+      {address ? session ? (
+        <Mint username={session.user?.name as string} pfp={session.user?.image as string} />
+      ) : (
+        <div className="p-4 flex justify-between items-center">
+          <h1 className="text-3xl text-white font-extrabold">Scratch.</h1>
+          <SignInButton
+            nonce={getNonce}
+            onSuccess={handleSuccess}
+            onError={() => setError(true)}
+            onSignOut={() => signOut()}
+          />
+          {error && <div>Unable to sign in at this time.</div>}
+        </div>
       ) : (
         <div className="p-4 flex justify-between items-center">
           <h1 className="text-3xl text-white font-extrabold">Scratch.</h1>
 
-          <button onClick={() => setConnectWalletOpen(true)} className="p-2 rounded-xl text-lg bg-purple-500 text-white font-bold">
+          <button onClick={() => setConnectWalletOpen(true)} className="p-2 rounded-xl text-xl bg-purple-500 text-white font-bold">
             Connect Wallet
           </button>
 
