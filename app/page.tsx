@@ -16,6 +16,7 @@ import { Wallet } from "./components/Wallet";
 
 export default function Home() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+  const [isWarpcast, setIsWarpcast] = useState(false);
   const { address, chain } = useAccount();
   const { disconnect } = useDisconnect();
   const balance = useBalance({ address })
@@ -45,10 +46,11 @@ export default function Home() {
     []
   );
 
-
   useEffect(() => {
     const load = async () => {
-      sdk.actions.ready();
+      await sdk.actions.ready();
+      const frameContext = await sdk.actions.addFrame();
+      setIsWarpcast(frameContext.added);
     };
     if (sdk && !isSDKLoaded) {
       setIsSDKLoaded(true);
@@ -67,22 +69,26 @@ export default function Home() {
       ) : (
         <div className="p-4 flex justify-between items-center">
           <h1 className="text-3xl text-white font-extrabold">Scratch.</h1>
-          <SignInButton
-            nonce={getNonce}
-            hideSignOut
-            onSuccess={handleSuccess}
-            onError={() => setError(true)}
-            onSignOut={() => signOut()}
-          />
+          {!isWarpcast && (
+            <SignInButton
+              nonce={getNonce}
+              hideSignOut
+              onSuccess={handleSuccess}
+              onError={() => setError(true)}
+              onSignOut={() => signOut()}
+            />
+          )}
           {error && <div>Unable to sign in at this time.</div>}
         </div>
       ) : (
         <div className="p-4 flex justify-between items-center">
           <h1 className="text-3xl text-white font-extrabold">Scratch.</h1>
 
-          <button onClick={() => setConnectWalletOpen(true)} className="p-2 rounded-xl text-xl bg-purple-500 text-white font-bold">
-            Connect Wallet
-          </button>
+          {!isWarpcast && (
+            <button onClick={() => setConnectWalletOpen(true)} className="p-2 rounded-xl text-xl bg-purple-500 text-white font-bold">
+              Connect Wallet
+            </button>
+          )}
 
           {/* Wallet Options Modal */}
           {isConnectWalletOpen && (
@@ -133,3 +139,4 @@ export default function Home() {
     </main>
   );
 }
+
