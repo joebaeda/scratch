@@ -69,6 +69,7 @@ export default function Home() {
           <h1 className="text-3xl text-white font-extrabold">Scratch.</h1>
           <SignInButton
             nonce={getNonce}
+            hideSignOut
             onSuccess={handleSuccess}
             onError={() => setError(true)}
             onSignOut={() => signOut()}

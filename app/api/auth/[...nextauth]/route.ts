@@ -30,31 +30,31 @@ export const authOptions = {
       },
       async authorize(credentials, req) {
         const csrfToken = (req.body as { csrfToken: string }).csrfToken;
-
+      
         const appClient = createAppClient({
           ethereum: viemConnector(),
         });
-
+      
         const verifyResponse = await appClient.verifySignInMessage({
           message: credentials?.message as string,
           signature: credentials?.signature as `0x${string}`,
           domain: "scratchnism.vercel.app",
           nonce: csrfToken,
         });
-
+      
         const { success, fid } = verifyResponse;
-
+      
         if (!success) {
           return null;
         }
-
+      
         return {
           id: fid.toString(),
           name: credentials?.name,
           image: credentials?.pfp,
         };
       },
-
+      
     }),
   ],
 };
