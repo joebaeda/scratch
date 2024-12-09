@@ -21,7 +21,7 @@ export function Redirect() {
                     {/* QR Code Section */}
                     <div className="bg-white p-6 rounded-2xl shadow-2xl">
                         <QRCode
-                            value="https://warpcast.com/~/compose"
+                            value="https://warpcast.com/~/compose?text=Create%20Art%20From%20Scratch!%20Frame%20by%20@joebaeda&embeds[]=https://scratchnism.vercel.app"
                             className="w-full h-auto"
                             style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                         />
@@ -55,10 +55,17 @@ export function Redirect() {
                     </div>
                 </div>
 
+                {/* Button */}
+                <div className="max-w-3xl mx-auto my-5">
+                    <a href="https://warpcast.com/~/compose?text=Create%20Art%20From%20Scratch!%20Frame%20by%20@joebaeda&embeds[]=https://scratchnism.vercel.app" target="_blank">
+                        <button className="w-full bg-purple-600 p-3 rounded-2xl text-xl font-bold text-white hover:bg-purple-700">Open In Warpcast</button>
+                    </a>
+                </div>
+
                 {/* Footer */}
                 <div className="mt-12 text-center">
                     <p className="text-purple-300 text-sm">
-                        Having trouble? <a className="font-bold text-purple-600" href="https://warpcast.com/joebaeda" target="_blank">Contact</a> support or visit our website for more information.
+                        Having trouble? <a className="font-bold text-purple-600" href="https://warpcast.com/joebaeda" target="_blank">Contact</a> support for more information.
                     </p>
                 </div>
             </div>

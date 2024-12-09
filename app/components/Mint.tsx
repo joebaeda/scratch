@@ -5,6 +5,7 @@ import { SketchPicker } from "react-color";
 import ColorPallete from "./ColorPallete";
 import PaintBrush from "./PaintBrush";
 import Image from "next/image";
+import sdk from "@farcaster/frame-sdk";
 
 interface Users {
     username: string;
@@ -111,11 +112,11 @@ const Mint: React.FC<Users> = (user) => {
     const saveDrawing = () => {
         const canvas = canvasRef.current;
         if (canvas) {
-            const image = canvas.toDataURL("image/png");
+            const image = canvas.toDataURL("image/jpeg");
             const link = document.createElement("a");
             link.href = image;
-            link.download = "cool-drawing.png";
-            link.click();
+            link.download = "cool-drawing.jpeg";
+            sdk.actions.openUrl(link.download)
         }
     };
 
