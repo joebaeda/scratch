@@ -5,7 +5,6 @@ import { SketchPicker } from "react-color";
 import ColorPallete from "./ColorPallete";
 import PaintBrush from "./PaintBrush";
 import Image from "next/image";
-import sdk from "@farcaster/frame-sdk";
 
 interface Users {
     username: string;
@@ -116,7 +115,7 @@ const Mint: React.FC<Users> = (user) => {
             const link = document.createElement("a");
             link.href = image;
             link.download = "cool-drawing.jpeg";
-            sdk.actions.openUrl(link.download)
+            link.click();
         }
     };
 
