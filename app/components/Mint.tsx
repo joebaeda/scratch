@@ -1,10 +1,16 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { SketchPicker } from "react-color";
 import ColorPallete from "./ColorPallete";
 import PaintBrush from "./PaintBrush";
 import Image from "next/image";
+import { BaseError, useChainId, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import sdk from "@farcaster/frame-sdk";
+import { base } from "wagmi/chains";
+import { abi } from "@/lib/contract";
+import { parseEther } from "viem";
+import { base64 } from "@/lib/base64";
 
 interface Users {
     username: string;
@@ -18,6 +24,20 @@ const Mint: React.FC<Users> = (user) => {
     const [brushSize, setBrushSize] = useState(5);
     const [showColorPicker, setShowColorPicker] = useState(false);
     const [showBrushSize, setShowBrushSize] = useState(false);
+
+    const chainId = useChainId();
+    const { data: hash, error, isPending, writeContract } = useWriteContract()
+
+    const { isLoading: isConfirming, isSuccess: isConfirmed } =
+        useWaitForTransactionReceipt({
+            hash,
+        })
+
+    const linkToBaseScan = useCallback((hash?: string) => {
+        if (hash) {
+            sdk.actions.openUrl(`https://basescan.org/tx/${hash}`);
+        }
+    }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -111,19 +131,18 @@ const Mint: React.FC<Users> = (user) => {
     const saveDrawing = () => {
         const canvas = canvasRef.current;
         if (canvas) {
-            const image = canvas.toDataURL("image/jpeg");
-            const link = document.createElement("a");
-            link.href = image;
-            link.download = "cool-drawing.jpeg";
-            link.click();
+            const base64Url = canvas.toDataURL("image/jpeg");
+            console.log(base64Url); // Logs the Base64 URL to the console
+            return base64Url; // Optionally, return the Base64 URL
         }
+        return base64; // If canvas is not available
     };
 
     return (
         <div className="bg-gray-50 h-screen relative">
             {/* Color Picker Button */}
             <button onClick={() => setShowColorPicker(true)} className="absolute top-4 left-4">
-                <ColorPallete width={50} height={50}/>
+                <ColorPallete width={50} height={50} />
             </button>
 
             <div className="absolute top-4 right-4">
@@ -183,13 +202,13 @@ const Mint: React.FC<Users> = (user) => {
                                 className="w-full mt-2"
                             />
                             <span className="text-sm">{brushSize}px</span>
-                            
-                        <button
-                            onClick={() => setShowBrushSize(false)}
-                            className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-md text-sm font-semibold hover:bg-red-600 transition"
-                        >
-                            Close
-                        </button>
+
+                            <button
+                                onClick={() => setShowBrushSize(false)}
+                                className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-md text-sm font-semibold hover:bg-red-600 transition"
+                            >
+                                Close
+                            </button>
                         </div>
                     </div>
                 )}
@@ -197,6 +216,22 @@ const Mint: React.FC<Users> = (user) => {
 
             {/* Fixed Bottom Buttons */}
             <div className="fixed bottom-0 w-full flex justify-between shadow-md">
+                {isConfirmed && (
+                    <>
+                        <p className="my-5 text-md text-green-600 font-extrabold">
+                            🎉 Transaction Confirmed!
+                        </p>
+                        <button
+                            className="w-full py-4 bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-600 transition"
+                            onClick={() => linkToBaseScan(hash)}
+                        >
+                            View on Basescan
+                        </button>
+                    </>
+                )}
+                {error && (
+                    <div className="bg-red-500 p-4 text-center text-white">Error: {(error as BaseError).shortMessage || error.message}</div>
+                )}
                 <button
                     onClick={clearCanvas}
                     className="w-full py-4 bg-red-500 text-white text-2xl font-semibold hover:bg-red-600 transition"
@@ -204,10 +239,24 @@ const Mint: React.FC<Users> = (user) => {
                     Clear
                 </button>
                 <button
-                    onClick={saveDrawing}
                     className="w-full py-4 bg-slate-500 text-white text-2xl font-semibold hover:bg-slate-700 transition"
+                    disabled={chainId !== base.id || isPending}
+                    onClick={() =>
+                        writeContract({
+                            abi,
+                            chainId: base.id, //8453
+                            address: "0x834a79FD83a7E2F4EB7025c46D46E095882E3204" as `0x${string}`,
+                            functionName: "mint",
+                            value: parseEther("0.001"), // fixed price for 1 Scratch Art
+                            args: [saveDrawing() as string],
+                        })
+                    }
                 >
-                    Mint
+                    {isPending
+                        ? "Confirming..."
+                        : isConfirming
+                            ? "Waiting..."
+                            : "Mint"}
                 </button>
             </div>
         </div>
