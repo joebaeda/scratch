@@ -156,7 +156,7 @@ const Mint: React.FC<Users> = (user) => {
                     console.log({ message: 'Something went wrong', type: 'error' });
                 }
             } catch (err) {
-                console.log({ message: 'Error uploading file', type: 'error' });
+                console.log({ message: 'Error uploading file', type: 'error', error: err });
             }
         }
     }
