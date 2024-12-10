@@ -6,10 +6,12 @@ import { useEffect, useState } from "react";
 import { Redirect } from "./components/Redirect";
 import { useAccount } from "wagmi";
 
+
 export default function Home() {
+  const { address } = useAccount();
+
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<FrameContext>();
-  const { address } = useAccount();
 
   useEffect(() => {
     const load = async () => {
@@ -42,7 +44,7 @@ export default function Home() {
 
   return (
     <main>
-        <Mint username={context?.user.displayName as string} pfp={context?.user.pfpUrl as string} />
+      <Mint username={context.user.username as string} pfp={context.user.pfpUrl as string} />
     </main>
   );
 }

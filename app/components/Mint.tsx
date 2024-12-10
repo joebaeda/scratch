@@ -10,7 +10,6 @@ import sdk from "@farcaster/frame-sdk";
 import { base } from "wagmi/chains";
 import { abi } from "@/lib/contract";
 import { parseEther } from "viem";
-import { base64 } from "@/lib/base64";
 
 interface Users {
     username: string;
@@ -128,14 +127,56 @@ const Mint: React.FC<Users> = (user) => {
         }
     };
 
-    const saveDrawing = () => {
-        const canvas = canvasRef.current;
+
+    const saveDrawing = async () => {
+        const canvas = canvasRef.current
         if (canvas) {
-            const base64Url = canvas.toDataURL("image/jpeg");
-            console.log(base64Url); // Logs the Base64 URL to the console
-            return base64Url; // Optionally, return the Base64 URL
+            // Convert canvas to data URL
+            const dataURL = canvas.toDataURL('image/png');
+
+            // Convert data URL to Blob
+            const blob = await fetch(dataURL).then(res => res.blob());
+
+            // Create FormData for Pinata upload
+            const formData = new FormData();
+            formData.append('file', blob, 'scratch.png');
+            try {
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    return data.ipfsHash; // Set the IPFS hash on success
+                } else {
+                    console.log({ message: 'Something went wrong', type: 'error' });
+                }
+            } catch (err) {
+                console.log({ message: 'Error uploading file', type: 'error' });
+            }
         }
-        return base64; // If canvas is not available
+    }
+
+    const handleMint = async () => {
+        const ipfsHash = await saveDrawing();
+        if (ipfsHash) {
+
+            writeContract({
+                abi,
+                chainId: base.id,
+                address: "0x834a79FD83a7E2F4EB7025c46D46E095882E3204" as `0x${string}`,
+                functionName: "mint",
+                value: parseEther("0.001"),
+                args: [`ipfs://${ipfsHash}`],
+            });
+
+        } else {
+            console.error("Failed to upload drawing to IPFS.");
+        }
     };
 
     return (
@@ -216,48 +257,36 @@ const Mint: React.FC<Users> = (user) => {
 
             {/* Fixed Bottom Buttons */}
             <div className="fixed bottom-0 w-full flex justify-between shadow-md">
-                {isConfirmed && (
+                {isConfirmed ? (
+                    <button
+                        className="w-full py-4 bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-600 transition"
+                        onClick={() => linkToBaseScan(hash)}
+                    >
+                        View on Basescan
+                    </button>
+                ) : (error ? (
+                    <div className="bg-red-500 p-4 text-center text-white">Error: {(error as BaseError).shortMessage || error.message}</div>
+                ) : (
                     <>
-                        <p className="my-5 text-md text-green-600 font-extrabold">
-                            🎉 Transaction Confirmed!
-                        </p>
                         <button
-                            className="w-full py-4 bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-600 transition"
-                            onClick={() => linkToBaseScan(hash)}
+                            onClick={clearCanvas}
+                            className="w-full py-4 bg-red-500 text-white text-2xl font-semibold hover:bg-red-600 transition"
                         >
-                            View on Basescan
+                            Clear
+                        </button>
+                        <button
+                            className="w-full py-4 bg-slate-500 text-white text-2xl font-semibold hover:bg-slate-700 transition"
+                            disabled={chainId !== base.id || isPending}
+                            onClick={handleMint}
+                        >
+                            {isPending
+                                ? "Confirming..."
+                                : isConfirming
+                                    ? "Waiting..."
+                                    : "Mint"}
                         </button>
                     </>
-                )}
-                {error && (
-                    <div className="bg-red-500 p-4 text-center text-white">Error: {(error as BaseError).shortMessage || error.message}</div>
-                )}
-                <button
-                    onClick={clearCanvas}
-                    className="w-full py-4 bg-red-500 text-white text-2xl font-semibold hover:bg-red-600 transition"
-                >
-                    Clear
-                </button>
-                <button
-                    className="w-full py-4 bg-slate-500 text-white text-2xl font-semibold hover:bg-slate-700 transition"
-                    disabled={chainId !== base.id || isPending}
-                    onClick={() =>
-                        writeContract({
-                            abi,
-                            chainId: base.id, //8453
-                            address: "0x834a79FD83a7E2F4EB7025c46D46E095882E3204" as `0x${string}`,
-                            functionName: "mint",
-                            value: parseEther("0.001"), // fixed price for 1 Scratch Art
-                            args: [saveDrawing() as string],
-                        })
-                    }
-                >
-                    {isPending
-                        ? "Confirming..."
-                        : isConfirming
-                            ? "Waiting..."
-                            : "Mint"}
-                </button>
+                ))}
             </div>
         </div>
     );
