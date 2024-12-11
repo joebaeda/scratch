@@ -36,6 +36,22 @@ export default function Home() {
           if (result.added) {
             localStorage.setItem("userToken", result.notificationDetails?.token as string)
             localStorage.setItem("notifyUrl", result.notificationDetails?.url as string)
+
+            // Notify the user of add frame to their client
+            await fetch("/api/notify", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                token: result.notificationDetails?.token as string,
+                title: "Welcome to Scratch of Art Frame!",
+                body: "Mint your own Scratch and keep it in your wallet until maximum supply is reached. There will be a surprise later!",
+                url: result.notificationDetails?.url as string,
+                targetUrl: `https://scratchnism.vercel.app`,
+              }),
+            });
+
           }
 
         } catch (error) {
