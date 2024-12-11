@@ -358,15 +358,15 @@ const Mint: React.FC<Users> = (user) => {
             {/* Canvas */}
             <canvas
                 ref={canvasRef}
-                width={1000}
-                height={1000}
+                width={500}
+                height={500}
                 onMouseDown={startDrawing}
                 onMouseMove={draw}
                 onMouseUp={stopDrawing}
                 onMouseOut={stopDrawing}
-                onTouchStart={() => startDrawing}
-                onTouchMove={() => draw}
-                onTouchEnd={() => stopDrawing}
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
                 className="w-full h-full cursor-crosshair"
             />
 
