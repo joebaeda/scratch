@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { token, url, targetUrl, title, body } = requestBody.data;
+        const { title, body, targetUrl, token, url } = requestBody.data;
 
         // Prepare payload for notification service
         const notificationPayload: SendNotificationRequest = {

@@ -23,6 +23,7 @@ const Mint: React.FC<Users> = (user) => {
     const [brushSize, setBrushSize] = useState(5);
     const [showColorPicker, setShowColorPicker] = useState(false);
     const [showBrushSize, setShowBrushSize] = useState(false);
+    const [embedHash, setEmbedHash] = useState("");
 
     const chainId = useChainId();
     const { data: hash, error, isPending, writeContract } = useWriteContract()
@@ -165,6 +166,8 @@ const Mint: React.FC<Users> = (user) => {
         const ipfsHash = await saveDrawing();
         if (ipfsHash) {
 
+            setEmbedHash(ipfsHash)
+
             writeContract({
                 abi,
                 chainId: base.id,
@@ -174,10 +177,31 @@ const Mint: React.FC<Users> = (user) => {
                 args: [`ipfs://${ipfsHash}`],
             });
 
+            // Notify the user of the minting success
+            await fetch("/api/notify", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    token: localStorage.getItem("userToken"), // Replace with the user's actual device token
+                    title: "One artist has joined!",
+                    body: `One scratch art has been minted by @${user.username}`,
+                    url: localStorage.getItem("notifyUrl"), // Replace with the notification service URL
+                    targetUrl: `https://basescan.org/tx/${hash}`, // Link to view the transaction
+                }),
+            });
+
         } else {
             console.error("Failed to upload drawing to IPFS.");
         }
     };
+
+    const linkToWarpcast = useCallback((embedHash?: string) => {
+        if (embedHash) {
+            sdk.actions.openUrl(`https://warpcast.com/~/compose?text=this%20is%20really%20cool%20-%20just%20minted%20one!&embeds[]=https://gateway.pinata.cloud/ipfs/${embedHash}`);
+        }
+    }, []);
 
     return (
         <div className="bg-gray-50 h-screen relative">
@@ -258,12 +282,20 @@ const Mint: React.FC<Users> = (user) => {
             {/* Fixed Bottom Buttons */}
             <div className="fixed bottom-0 w-full flex justify-between shadow-md">
                 {isConfirmed ? (
-                    <button
-                        className="w-full py-4 bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-600 transition"
-                        onClick={() => linkToBaseScan(hash)}
-                    >
-                        View on Basescan
-                    </button>
+                    <>
+                        <button
+                            className="w-full py-4 bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-600 transition"
+                            onClick={() => linkToBaseScan(hash)}
+                        >
+                            Proof
+                        </button>
+                        <button
+                            className="w-full py-4 bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-600 transition"
+                            onClick={() => linkToWarpcast(embedHash)}
+                        >
+                            Cast
+                        </button>
+                    </>
                 ) : (error ? (
                     <div className="bg-red-500 p-4 text-center text-white">Error: {(error as BaseError).shortMessage || error.message}</div>
                 ) : (

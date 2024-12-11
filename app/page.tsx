@@ -28,7 +28,21 @@ export default function Home() {
   useEffect(() => {
     if (address) {
       // Trigger Farcaster login automatically
-      sdk.actions.addFrame();
+      const addFrames = async () => {
+        try {
+
+          const result = await sdk.actions.addFrame();
+
+          if (result.added) {
+            localStorage.setItem("userToken", result.notificationDetails?.token as string)
+            localStorage.setItem("notifyUrl", result.notificationDetails?.url as string)
+          }
+
+        } catch (error) {
+          console.log({ error: error })
+        }
+      }
+      addFrames();
     }
   }, [address]);
 

@@ -34,21 +34,21 @@ export function Redirect() {
                                 <span>How to use</span>
                             </h2>
                             <ol className="space-y-4">
-                                <li className="flex items-start gap-3">
+                                <li className="flex items-center gap-3">
                                     <span className="bg-purple-500 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">1</span>
                                     <span>Open Warpcast or other Farcaster client on your device</span>
                                 </li>
-                                <li className="flex items-start gap-3">
+                                <li className="flex items-center gap-3">
                                     <span className="bg-purple-500 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">2</span>
-                                    <span>Scan the QR code or search for &quot;Scratch&quot;</span>
+                                    <span>Scan the QR code or open using the button below</span>
                                 </li>
-                                <li className="flex items-start gap-3">
+                                <li className="flex items-center gap-3">
                                     <span className="bg-purple-500 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">3</span>
                                     <span>Open the Scratch frame within Warpcast</span>
                                 </li>
-                                <li className="flex items-start gap-3">
+                                <li className="flex items-center gap-3">
                                     <span className="bg-purple-500 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">4</span>
-                                    <span>Enjoy the full functionality of the app!</span>
+                                    <span>Enjoy and mint your original Scratch art!</span>
                                 </li>
                             </ol>
                         </div>
