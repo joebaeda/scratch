@@ -26,7 +26,7 @@ export default function Home() {
   }, [isSDKLoaded]);
 
   useEffect(() => {
-    if (address) {
+    if (!address) {
       sdk.actions.addFrame();
     }
   }, [address])
