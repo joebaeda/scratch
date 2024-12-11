@@ -177,21 +177,6 @@ const Mint: React.FC<Users> = (user) => {
                 args: [`ipfs://${ipfsHash}`],
             });
 
-            // Notify the user of the minting success
-            await fetch("/api/notify", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    token: localStorage.getItem("userToken"), // Replace with the user's actual device token
-                    title: "One artist has joined!",
-                    body: `One scratch art has been minted by @${user.username}`,
-                    url: localStorage.getItem("notifyUrl"), // Replace with the notification service URL
-                    targetUrl: `https://basescan.org/tx/${hash}`, // Link to view the transaction
-                }),
-            });
-
         } else {
             console.error("Failed to upload drawing to IPFS.");
         }

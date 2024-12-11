@@ -12,8 +12,7 @@ export async function GET() {
       iconUrl: "https://scratchnism.vercel.app/scratch.png",
       homeUrl: "https://scratchnism.vercel.app",
       splashImageUrl: "https://scratchnism.vercel.app/splash.svg",
-      splashBackgroundColor: "#ede4ca",
-      webhookUrl: "https://scratchnism.vercel.app/api/webhook"
+      splashBackgroundColor: "#ede4ca"
     },
   };
 
