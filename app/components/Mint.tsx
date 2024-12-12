@@ -14,6 +14,7 @@ import { parseEther } from "viem";
 import ColorBucket from "./ColorBucket";
 import Undo from "./Undo";
 import Redo from "./Redo";
+import ToolMenu from "./ToolMenu";
 
 interface MintProps {
   username: string;
@@ -30,6 +31,7 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
   const [history, setHistory] = useState<ImageData[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [embedHash, setEmbedHash] = useState("");
+  const [showTool, setShowTool] = useState(false);
 
   const chainId = useChainId();
   const { data: hash, error, isPending, writeContract } = useWriteContract()
@@ -269,7 +271,7 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
   return (
     <div className="bg-gray-50 h-screen relative">
 
-      <div className="absolute top-4 right-6">
+      <div className="absolute top-4 right-4">
         <div className="flex bg-slate-500 text-white rounded-2xl flex-row justify-between items-center gap-2">
           <Image className="rounded-l-2xl" src={pfp} alt={username} width={50} height={50} priority />
           <p className="font-bold pr-3">{username}</p>
@@ -322,58 +324,78 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
         className="w-full h-full cursor-crosshair touch-none"
       />
 
-      {/* Floating Buttons */}
-      <div className="absolute flex flex-col space-y-8 top-4 left-4">
+      {showTool ? (
+        <div className="absolute flex flex-col space-y-8 top-4 left-4">
+          {/* Menu Opened */}
+          <button
+            onClick={() => setShowTool(false)}
+            className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
+            <ToolMenu
+              width={35}
+              height={35} />
+          </button>
 
-        {/* Color Picker Button */}
-        <button
-          onClick={() => setShowColorPicker(true)}
-          className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
-          <ColorPallete
-            width={35}
-            height={35} />
-        </button>
+          {/* Color Picker Button */}
+          <button
+            onClick={() => setShowColorPicker(true)}
+            className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
+            <ColorPallete
+              width={35}
+              height={35} />
+          </button>
 
-        {/*Brush button */}
-        <button
-          onClick={() => setTool("brush")}
-          className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400"
-        >
-          <PaintBrush
-            width={35}
-            height={35} />
-        </button>
+          {/*Brush button */}
+          <button
+            onClick={() => setTool("brush")}
+            className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400"
+          >
+            <PaintBrush
+              width={35}
+              height={35} />
+          </button>
 
-        {/* Fill Button */}
-        <button
-          onClick={() => setTool('fill')}
-          className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400"
-        >
-          <ColorBucket
-            width={35}
-            height={35} />
-        </button>
+          {/* Fill Button */}
+          <button
+            onClick={() => setTool('fill')}
+            className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400"
+          >
+            <ColorBucket
+              width={35}
+              height={35} />
+          </button>
 
-        {/* Undo Button */}
-        <button
-          onClick={undo}
-          disabled={historyIndex <= 0}
-          className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
-          <Undo
-            width={35}
-            height={35} />
-        </button>
+          {/* Undo Button */}
+          <button
+            onClick={undo}
+            disabled={historyIndex <= 0}
+            className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
+            <Undo
+              width={35}
+              height={35} />
+          </button>
 
-        {/* Redo Button */}
-        <button
-          onClick={redo}
-          disabled={historyIndex >= history.length - 1}
-          className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
-          <Redo
-            width={35}
-            height={35} />
-        </button>
-      </div>
+          {/* Redo Button */}
+          <button
+            onClick={redo}
+            disabled={historyIndex >= history.length - 1}
+            className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
+            <Redo
+              width={35}
+              height={35} />
+          </button>
+        </div>
+      ) : (
+        <div className="absolute flex flex-col top-4 left-4">
+          {/* Menu Closed */}
+          <button
+            onClick={() => setShowTool(true)}
+            className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
+            <ToolMenu
+              width={35}
+              height={35} />
+          </button>
+        </div>
+      )}
 
 
       {/* Fixed Bottom Buttons */}
