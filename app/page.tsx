@@ -1,6 +1,6 @@
 "use client"
 
-import sdk, { type FrameContext } from "@farcaster/frame-sdk";
+import sdk, { FrameContext } from "@farcaster/frame-sdk";
 import Mint from "./components/Mint";
 import { useEffect, useState } from "react";
 import { Redirect } from "./components/Redirect";
@@ -26,7 +26,7 @@ export default function Home() {
   }, [isSDKLoaded]);
 
   useEffect(() => {
-    if (!address) {
+    if (address) {
       sdk.actions.addFrame();
     }
   }, [address])
@@ -43,7 +43,7 @@ export default function Home() {
 
   return (
     <main>
-      <Mint username={context.user.username as string} pfp={context.user.pfpUrl as string} />
+      <Mint username={context.user.displayName as string} pfp={context.user.pfpUrl as string} />
     </main>
   );
 }
