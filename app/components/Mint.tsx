@@ -44,62 +44,54 @@ const Mint: React.FC<Users> = (user) => {
     }
   }, []);
 
-  const redrawCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      if (ctx && history.length > 0) {
-        ctx.putImageData(history[historyIndex], 0, 0);
-      }
-    }
-  }, [history, historyIndex]);
-
-  const saveToHistory = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (ctx) {
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        setHistory((prev) => [...prev.slice(0, historyIndex + 1), imageData]);
-        setHistoryIndex((prev) => prev + 1);
-      }
-    }
-  }, [historyIndex]);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        // Save initial blank state
         saveToHistory();
       }
     }
 
     const handleResize = () => {
-      const parent = canvas?.parentElement;
-      if (canvas && parent) {
-        canvas.width = parent.clientWidth;
-        canvas.height = parent.clientHeight;
-        redrawCanvas();
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const parent = canvas.parentElement;
+        if (parent) {
+          canvas.width = parent.clientWidth;
+          canvas.height = parent.clientHeight;
+          redrawCanvas();
+        }
       }
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
     handleResize();
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
     };
-  }, [redrawCanvas, saveToHistory]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getCoordinates = (e: any) => {
+  const redrawCanvas = () => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx && history.length > 0) {
+        ctx.putImageData(history[historyIndex], 0, 0);
+      }
+    }
+  };
+
+  const getCoordinates = (e: React.TouchEvent<HTMLCanvasElement> | React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (canvas) {
       const rect = canvas.getBoundingClientRect();
-      if (e.touches) {
+      if ('touches' in e) {
         return {
           x: e.touches[0].clientX - rect.left,
           y: e.touches[0].clientY - rect.top,
@@ -114,32 +106,31 @@ const Mint: React.FC<Users> = (user) => {
     return { x: 0, y: 0 };
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const startDrawing = (e: any) => {
-    e.preventDefault();
+  const startDrawing = (e: React.TouchEvent<HTMLCanvasElement> | React.MouseEvent<HTMLCanvasElement>) => {
+    e.preventDefault(); // Prevent scrolling on touch devices
     const { x, y } = getCoordinates(e);
     const canvas = canvasRef.current;
     if (canvas) {
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       if (ctx) {
         setIsDrawing(true);
-        if (tool === "brush") {
+        if (tool === 'brush') {
           ctx.beginPath();
           ctx.moveTo(x, y);
-        } else if (tool === "fill") {
+        } else if (tool === 'fill') {
           floodFill(ctx, x, y, color);
         }
       }
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const draw = (e: any) => {
-    if (!isDrawing || tool !== "brush") return;
+  const draw = (e: React.TouchEvent<HTMLCanvasElement> | React.MouseEvent<HTMLCanvasElement>) => {
+    e.preventDefault(); // Prevent scrolling on touch devices
+    if (!isDrawing || tool !== 'brush') return;
     const { x, y } = getCoordinates(e);
     const canvas = canvasRef.current;
     if (canvas) {
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.strokeStyle = color;
         ctx.lineWidth = brushSize;
@@ -211,6 +202,20 @@ const Mint: React.FC<Users> = (user) => {
       255
     ] : null;
   };
+
+  const saveToHistory = () => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      // Specify the willReadFrequently option
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (ctx) {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        setHistory(prevHistory => [...prevHistory.slice(0, historyIndex + 1), imageData]);
+        setHistoryIndex(prevIndex => prevIndex + 1);
+      }
+    }
+  };
+
 
   const undo = () => {
     if (historyIndex > 0) {
@@ -353,6 +358,8 @@ const Mint: React.FC<Users> = (user) => {
       {/* Canvas */}
       <canvas
         ref={canvasRef}
+        width={500}
+        height={500}
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}
