@@ -44,19 +44,6 @@ const Mint: React.FC<Users> = (user) => {
         }
     }, []);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const saveToHistory = () => {
-        const canvas = canvasRef.current;
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                setHistory(prevHistory => [...prevHistory.slice(0, historyIndex + 1), imageData]);
-                setHistoryIndex(prevIndex => prevIndex + 1);
-            }
-        }
-    };
-
     useEffect(() => {
         const canvas = canvasRef.current;
         if (canvas) {
@@ -68,21 +55,58 @@ const Mint: React.FC<Users> = (user) => {
                 saveToHistory();
             }
         }
-    }, [saveToHistory]);
 
-    const getCoordinates = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        const handleResize = () => {
+            const canvas = canvasRef.current;
+            if (canvas) {
+                const parent = canvas.parentElement;
+                if (parent) {
+                    canvas.width = parent.clientWidth;
+                    canvas.height = parent.clientHeight;
+                    redrawCanvas();
+                }
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize();
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const redrawCanvas = () => {
+        const canvas = canvasRef.current;
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            if (ctx && history.length > 0) {
+                ctx.putImageData(history[historyIndex], 0, 0);
+            }
+        }
+    };
+
+    const getCoordinates = (e: React.TouchEvent<HTMLCanvasElement> | React.MouseEvent<HTMLCanvasElement>) => {
         const canvas = canvasRef.current;
         if (canvas) {
             const rect = canvas.getBoundingClientRect();
-            return {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top,
-            };
+            if ('touches' in e) {
+                return {
+                    x: e.touches[0].clientX - rect.left,
+                    y: e.touches[0].clientY - rect.top,
+                };
+            } else {
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top,
+                };
+            }
         }
         return { x: 0, y: 0 };
     };
 
-    const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const startDrawing = (e: React.TouchEvent<HTMLCanvasElement> | React.MouseEvent<HTMLCanvasElement>) => {
         const { x, y } = getCoordinates(e);
         const canvas = canvasRef.current;
         if (canvas) {
@@ -99,7 +123,7 @@ const Mint: React.FC<Users> = (user) => {
         }
     };
 
-    const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const draw = (e: React.TouchEvent<HTMLCanvasElement> | React.MouseEvent<HTMLCanvasElement>) => {
         if (!isDrawing || tool !== 'brush') return;
         const { x, y } = getCoordinates(e);
         const canvas = canvasRef.current;
@@ -175,6 +199,18 @@ const Mint: React.FC<Users> = (user) => {
             parseInt(result[3], 16),
             255
         ] : null;
+    };
+
+    const saveToHistory = () => {
+        const canvas = canvasRef.current;
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                setHistory(prevHistory => [...prevHistory.slice(0, historyIndex + 1), imageData]);
+                setHistoryIndex(prevIndex => prevIndex + 1);
+            }
+        }
     };
 
     const undo = () => {
@@ -278,7 +314,7 @@ const Mint: React.FC<Users> = (user) => {
         <div className="bg-gray-50 h-screen relative">
             {/* Color Picker Button */}
             <button onClick={() => setShowColorPicker(true)} className="absolute top-4 left-6">
-                <ColorPallete width={50} height={50} />
+                <ColorPallete width={35} height={35} />
             </button>
 
             <div className="absolute top-4 right-6">
@@ -322,12 +358,15 @@ const Mint: React.FC<Users> = (user) => {
             {/* Canvas */}
             <canvas
                 ref={canvasRef}
-                width={1000}
-                height={1000}
+                width={500}
+                height={500}
                 onMouseDown={startDrawing}
                 onMouseMove={draw}
                 onMouseUp={stopDrawing}
                 onMouseOut={stopDrawing}
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
                 className="w-full h-full cursor-crosshair"
             />
 
@@ -336,7 +375,7 @@ const Mint: React.FC<Users> = (user) => {
                 <button
                     onClick={() => setTool("brush")}
                 >
-                    <PaintBrush width={50} height={50} />
+                    <PaintBrush width={35} height={35} />
                 </button>
             </div>
 
@@ -347,8 +386,8 @@ const Mint: React.FC<Users> = (user) => {
                     onClick={() => setTool('fill')}
                 >
                     <ColorBucket
-                        width={100}
-                        height={100} />
+                        width={80}
+                        height={80} />
                 </button>
 
                 {/* Undo Button */}
@@ -357,8 +396,8 @@ const Mint: React.FC<Users> = (user) => {
                     disabled={historyIndex <= 0}
                     className="p-4">
                     <Undo
-                        width={60}
-                        height={60} />
+                        width={45}
+                        height={45} />
                 </button>
 
                 {/* Redo Button */}
@@ -367,8 +406,8 @@ const Mint: React.FC<Users> = (user) => {
                     disabled={historyIndex >= history.length - 1}
                     className="p-4">
                     <Redo
-                        width={60}
-                        height={60} />
+                        width={45}
+                        height={45} />
                 </button>
             </div>
 
