@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { SketchPicker } from "react-color";
+import FloodFill from "q-floodfill";
 import ColorPallete from "./ColorPallete";
 import PaintBrush from "./PaintBrush";
 import Image from "next/image";
@@ -14,12 +15,12 @@ import ColorBucket from "./ColorBucket";
 import Undo from "./Undo";
 import Redo from "./Redo";
 
-interface Users {
+interface MintProps {
   username: string;
   pfp: string;
 }
 
-const Mint: React.FC<Users> = (user) => {
+const Mint: React.FC<MintProps> = ({ username, pfp }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState('#000000');
@@ -106,6 +107,15 @@ const Mint: React.FC<Users> = (user) => {
     return { x: 0, y: 0 };
   };
 
+  const bucketFill = (ctx: CanvasRenderingContext2D, x: number, y: number, fillColor: string) => {
+    const canvas = ctx.canvas;
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const floodFill = new FloodFill(imageData)
+    floodFill.fill(fillColor, x, y, 0)
+    ctx.putImageData(floodFill.imageData, 0, 0)
+  };
+
+
   const startDrawing = (e: React.TouchEvent<HTMLCanvasElement> | React.MouseEvent<HTMLCanvasElement>) => {
     e.preventDefault(); // Prevent scrolling on touch devices
     const { x, y } = getCoordinates(e);
@@ -118,7 +128,7 @@ const Mint: React.FC<Users> = (user) => {
           ctx.beginPath();
           ctx.moveTo(x, y);
         } else if (tool === 'fill') {
-          floodFill(ctx, x, y, color);
+          bucketFill(ctx, x, y, color);
         }
       }
     }
@@ -143,64 +153,6 @@ const Mint: React.FC<Users> = (user) => {
   const stopDrawing = () => {
     setIsDrawing(false);
     saveToHistory();
-  };
-
-  const floodFill = (ctx: CanvasRenderingContext2D, x: number, y: number, fillColor: string) => {
-    const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-    const targetColor = getPixel(imageData, x, y);
-    const fillColorRgb = hexToRgb(fillColor);
-
-    if (!fillColorRgb) return;
-
-    const stack = [{ x, y }];
-    while (stack.length > 0) {
-      const { x, y } = stack.pop()!;
-      if (x < 0 || x >= imageData.width || y < 0 || y >= imageData.height) continue;
-
-      const currentColor = getPixel(imageData, x, y);
-      if (!colorsMatch(currentColor, targetColor) || colorsMatch(currentColor, fillColorRgb)) continue;
-
-      setPixel(imageData, x, y, fillColorRgb);
-
-      stack.push({ x: x + 1, y });
-      stack.push({ x: x - 1, y });
-      stack.push({ x, y: y + 1 });
-      stack.push({ x, y: y - 1 });
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-  };
-
-  const getPixel = (imageData: ImageData, x: number, y: number): number[] => {
-    const index = (y * imageData.width + x) * 4;
-    return [
-      imageData.data[index],
-      imageData.data[index + 1],
-      imageData.data[index + 2],
-      imageData.data[index + 3]
-    ];
-  };
-
-  const setPixel = (imageData: ImageData, x: number, y: number, color: number[]) => {
-    const index = (y * imageData.width + x) * 4;
-    imageData.data[index] = color[0];
-    imageData.data[index + 1] = color[1];
-    imageData.data[index + 2] = color[2];
-    imageData.data[index + 3] = color[3];
-  };
-
-  const colorsMatch = (color1: number[], color2: number[]): boolean => {
-    return color1[0] === color2[0] && color1[1] === color2[1] && color1[2] === color2[2] && color1[3] === color2[3];
-  };
-
-  const hexToRgb = (hex: string): number[] | null => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? [
-      parseInt(result[1], 16),
-      parseInt(result[2], 16),
-      parseInt(result[3], 16),
-      255
-    ] : null;
   };
 
   const saveToHistory = () => {
@@ -266,7 +218,7 @@ const Mint: React.FC<Users> = (user) => {
 
       // Create FormData for Pinata upload
       const formData = new FormData();
-      formData.append('file', blob, `${user.username}.png`);
+      formData.append('file', blob, `${username}.png`);
       try {
 
         const response = await fetch('/api/upload', {
@@ -319,8 +271,8 @@ const Mint: React.FC<Users> = (user) => {
 
       <div className="absolute top-4 right-6">
         <div className="flex bg-slate-500 text-white rounded-2xl flex-row justify-between items-center gap-2">
-          <Image className="rounded-l-2xl" src={user.pfp} alt={user.username} width={50} height={50} priority />
-          <p className="font-bold pr-3">{user.username}</p>
+          <Image className="rounded-l-2xl" src={pfp} alt={username} width={50} height={50} priority />
+          <p className="font-bold pr-3">{username}</p>
         </div>
       </div>
 
