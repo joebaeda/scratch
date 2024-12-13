@@ -32,6 +32,8 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [embedHash, setEmbedHash] = useState("");
   const [showTool, setShowTool] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
 
   const chainId = useChainId();
   const { data: hash, error, isPending, writeContract } = useWriteContract()
@@ -208,6 +210,23 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
     }
   };
 
+  const savePreview = async () => {
+    const canvas = canvasRef.current
+    if (canvas) {
+      const dataURL = canvas.toDataURL('image/png');
+      setPreviewUrl(dataURL);
+    }
+  }
+
+  useEffect(() => {
+    if (showPreview) {
+      savePreview();
+    }
+
+    if (isConfirmed) {
+      setShowPreview(false)
+    }
+  }, [isConfirmed, showPreview])
 
   const saveDrawing = async () => {
     const canvas = canvasRef.current
@@ -294,17 +313,52 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
 
       {showColorPicker && (
         <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-900 bg-opacity-50">
-          <div className="flex flex-col bg-white p-4 rounded-md shadow-lg">
+          <div className="flex space-y-4 flex-col bg-white p-4 rounded-md shadow-lg">
             <SketchPicker
               color={color}
               onChange={(newColor) => setColor(newColor.hex)}
             />
             <button
               onClick={() => setShowColorPicker(false)}
-              className="w-full bg-blue-500 text-white my-5 py-3 rounded-md text-sm font-semibold hover:bg-blue-600 transition"
+              className="w-full py-4 rounded-2xl bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-700 transition"
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+
+      {showPreview && (
+        <div className="fixed p-4 inset-0 flex items-center justify-center z-10 bg-gray-900 bg-opacity-50">
+          <div className="flex p-4 space-y-5 flex-col bg-white rounded-2xl shadow-lg">
+            <Image
+              src={previewUrl}
+              width={500}
+              height={500}
+              alt={`Scratch Of Art by ${username}`}
+              className="object-cover rounded-2xl"
+              priority
+            />
+            <div className="flex flex-row gap-2">
+              <button
+                onClick={() => setShowPreview(false)}
+                disabled={isPending}
+                className="w-full py-4 rounded-2xl bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-700 transition"
+              >
+                Close
+              </button>
+              <button
+                className="w-full py-4 rounded-2xl bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-700 transition"
+                disabled={chainId !== base.id || isPending}
+                onClick={handleMint}
+              >
+                {isPending
+                  ? "Confirming..."
+                  : isConfirming
+                    ? "Waiting..."
+                    : "Mint"}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -427,14 +481,9 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
             </button>
             <button
               className="w-full py-4 bg-slate-500 text-white text-2xl font-semibold hover:bg-slate-700 transition"
-              disabled={chainId !== base.id || isPending}
-              onClick={handleMint}
+              onClick={() => setShowPreview(true)}
             >
-              {isPending
-                ? "Confirming..."
-                : isConfirming
-                  ? "Waiting..."
-                  : "Mint"}
+              Preview
             </button>
           </>
         ))}
