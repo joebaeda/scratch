@@ -227,8 +227,26 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
 
     if (isConfirmed) {
       setShowPreview(false)
+      const sendNotify = async () => {
+        try {
+
+          await fetch("/api/send-notify", {
+            method: "POST",
+            mode: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: `🎉 Congratulations ${username}`,
+              body: "Now, Your Original Scratch Art is available on any NFT Marketplace that support base Network",
+            }),
+          });
+
+        } catch (error) {
+          console.log(error)
+        }
+      }
+      sendNotify()
     }
-  }, [isConfirmed, showPreview])
+  }, [isConfirmed, showPreview, username])
 
   const saveDrawing = async () => {
     const canvas = canvasRef.current
