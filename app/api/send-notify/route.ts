@@ -1,55 +1,51 @@
+import { notificationDetailsSchema } from "@farcaster/frame-sdk";
 import { NextRequest } from "next/server";
 import { z } from "zod";
+import { setUserNotificationDetails } from "@/lib/kv";
 import { sendFrameNotification } from "@/lib/notify";
 
-// Define request validation schema
 const requestSchema = z.object({
+    fid: z.number(),
+    notificationDetails: notificationDetailsSchema,
     title: z.string(), // Adding title as parameter
     body: z.string(),  // Adding body as parameter
 });
 
 export async function POST(request: NextRequest) {
-    try {
-        // Parse and validate the incoming request JSON
-        const requestJson = await request.json();
-        const requestBody = requestSchema.safeParse(requestJson);
+    const requestJson = await request.json();
+    const requestBody = requestSchema.safeParse(requestJson);
 
-        if (!requestBody.success) {
-            return new Response(
-                JSON.stringify({ success: false, errors: requestBody.error.errors }),
-                { status: 400, headers: { "Content-Type": "application/json" } }
-            );
-        }
-
-        const { title, body } = requestBody.data;
-
-        // Call the send notification function
-        const sendResult = await sendFrameNotification({ title, body });
-
-        // Handle the result of sending notification
-        if (sendResult.state === "error") {
-            return new Response(
-                JSON.stringify({ success: false, error: sendResult.error }),
-                { status: 500, headers: { "Content-Type": "application/json" } }
-            );
-        }
-
-        if (sendResult.state === "rate_limit") {
-            return new Response(
-                JSON.stringify({ success: false, error: "Rate limited" }),
-                { status: 429, headers: { "Content-Type": "application/json" } }
-            );
-        }
-
-        return new Response(
-            JSON.stringify({ success: true }),
-            { status: 200, headers: { "Content-Type": "application/json" } }
-        );
-    } catch (error) {
-        // Catch and handle unexpected errors
-        return new Response(
-            JSON.stringify({ success: false, error: error }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
+    if (requestBody.success === false) {
+        return Response.json(
+            { success: false, errors: requestBody.error.errors },
+            { status: 400 }
         );
     }
+
+    await setUserNotificationDetails(
+        requestBody.data.fid,
+        requestBody.data.notificationDetails
+    );
+
+    const { title, body } = requestBody.data;
+
+    const sendResult = await sendFrameNotification({
+        fid: requestBody.data.fid,
+        title,
+        body,
+    });
+
+    if (sendResult.state === "error") {
+        return Response.json(
+            { success: false, error: sendResult.error },
+            { status: 500 }
+        );
+    } else if (sendResult.state === "rate_limit") {
+        return Response.json(
+            { success: false, error: "Rate limited" },
+            { status: 429 }
+        );
+    }
+
+    return Response.json({ success: true });
 }

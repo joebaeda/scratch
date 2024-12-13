@@ -2,77 +2,62 @@ import {
     SendNotificationRequest,
     sendNotificationResponseSchema,
 } from "@farcaster/frame-sdk";
-
-interface INotifyKey {
-    url: string;
-    token: string;
-}
+import { getUserNotificationDetails } from "@/lib/kv";
 
 type SendFrameNotificationResult =
-    | { state: "error"; error: unknown }
+    | {
+        state: "error";
+        error: unknown;
+    }
     | { state: "no_token" }
     | { state: "rate_limit" }
     | { state: "success" };
 
 export async function sendFrameNotification({
+    fid,
     title,
     body,
 }: {
+    fid: number;
     title: string;
     body: string;
 }): Promise<SendFrameNotificationResult> {
-    // Retrieve notifyKey from localStorage
-    const storedNotifyKey = localStorage.getItem("notifyKey");
-
-    if (!storedNotifyKey) {
+    const notificationDetails = await getUserNotificationDetails(fid);
+    if (!notificationDetails) {
         return { state: "no_token" };
     }
 
-    // Parse the notifyKey
-    let notifyKey: INotifyKey;
-    try {
-        notifyKey = JSON.parse(storedNotifyKey) as INotifyKey;
-    } catch (error) {
-        return { state: "error", error: error };
-    }
+    const response = await fetch(notificationDetails.url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            notificationId: crypto.randomUUID(),
+            title,
+            body,
+            targetUrl: "https://scratchnism.vercel.app",
+            tokens: [notificationDetails.token],
+        } satisfies SendNotificationRequest),
+    });
 
-    if (!notifyKey.url || !notifyKey.token) {
-        return { state: "no_token" };
-    }
+    const responseJson = await response.json();
 
-    try {
-        // Send the notification
-        const response = await fetch(notifyKey.url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                notificationId: crypto.randomUUID(),
-                title,
-                body,
-                targetUrl: "https://scratchnism.vercel.app",
-                tokens: [notifyKey.token],
-            } satisfies SendNotificationRequest),
-        });
-
-        const responseJson = await response.json();
-
-        if (response.status === 200) {
-            const responseBody = sendNotificationResponseSchema.safeParse(responseJson);
-            if (!responseBody.success) {
-                return { state: "error", error: responseBody.error.errors };
-            }
-
-            if (responseBody.data.result.rateLimitedTokens.length) {
-                return { state: "rate_limit" };
-            }
-
-            return { state: "success" };
-        } else {
-            return { state: "error", error: responseJson };
+    if (response.status === 200) {
+        const responseBody = sendNotificationResponseSchema.safeParse(responseJson);
+        if (responseBody.success === false) {
+            // Malformed response
+            return { state: "error", error: responseBody.error.errors };
         }
-    } catch (error) {
-        return { state: "error", error };
+
+        if (responseBody.data.result.rateLimitedTokens.length) {
+            // Rate limited
+            return { state: "rate_limit" };
+        }
+
+        return { state: "success" };
+    } else {
+        // Error response
+        return { state: "error", error: responseJson };
     }
 }
