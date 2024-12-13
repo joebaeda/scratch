@@ -28,15 +28,17 @@ export default function Home() {
   useEffect(() => {
     if (address) {
       const addFrames = async () => {
-        
+
         try {
           const result = await sdk.actions.addFrame();
           if (result.added) {
-            const notifyKey = {
-              url: result.notificationDetails?.url,
-              token: result.notificationDetails?.token,
+            if (result.notificationDetails) {
+              const notifyKey = {
+                url: result.notificationDetails?.url,
+                token: result.notificationDetails?.token,
+              }
+              localStorage.setItem("notifyKey", JSON.stringify(notifyKey));
             }
-            localStorage.setItem("notifyKey", JSON.stringify(notifyKey));
           }
 
         } catch (error) {
