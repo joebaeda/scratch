@@ -15,6 +15,8 @@ import ColorBucket from "./ColorBucket";
 import Undo from "./Undo";
 import Redo from "./Redo";
 import ToolMenu from "./ToolMenu";
+import Preview from "./Preview";
+import Delete from "./Delete";
 
 interface MintProps {
   username: string;
@@ -290,16 +292,22 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
   return (
     <div className="bg-gray-50 h-screen relative">
 
-      <div className="absolute top-4 right-4">
+      {/* Profile */}
+      <div className="absolute flex flex-row space-x-4 top-4 right-4">
+        <button
+          className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400"
+          onClick={() => setShowPreview(true)}
+        >
+          <Preview width={34} height={34} />
+        </button>
         <div className="flex bg-slate-500 text-white rounded-2xl flex-row justify-between items-center gap-2">
-          <Image className="rounded-l-2xl" src={pfp} alt={username} width={50} height={50} priority />
+          <Image className="object-cover rounded-l-2xl" src={pfp} alt={username} width={50} height={50} priority />
           <p className="font-bold pr-3">{username}</p>
         </div>
       </div>
 
-
       {/* Brush size options */}
-      <div className="absolute w-full bottom-14 mx-auto p-6 bg-gray-200 rounded-t-2xl">
+      <div className="absolute w-full bottom-0 p-4 bg-gray-200 rounded-t-2xl">
         <input
           type="range"
           min="1"
@@ -379,14 +387,14 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
       />
 
       {showTool ? (
-        <div className="absolute flex flex-col space-y-8 top-4 left-4">
+        <div className="absolute flex flex-col space-y-6 top-4 left-4">
           {/* Menu Opened */}
           <button
             onClick={() => setShowTool(false)}
             className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
             <ToolMenu
-              width={35}
-              height={35} />
+              width={34}
+              height={34} />
           </button>
 
           {/* Color Picker Button */}
@@ -394,8 +402,8 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
             onClick={() => setShowColorPicker(true)}
             className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
             <ColorPallete
-              width={35}
-              height={35} />
+              width={34}
+              height={34} />
           </button>
 
           {/*Brush button */}
@@ -404,8 +412,8 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
             className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400"
           >
             <PaintBrush
-              width={35}
-              height={35} />
+              width={34}
+              height={34} />
           </button>
 
           {/* Fill Button */}
@@ -414,8 +422,8 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
             className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400"
           >
             <ColorBucket
-              width={35}
-              height={35} />
+              width={34}
+              height={34} />
           </button>
 
           {/* Undo Button */}
@@ -424,8 +432,8 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
             disabled={historyIndex <= 0}
             className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
             <Undo
-              width={35}
-              height={35} />
+              width={34}
+              height={34} />
           </button>
 
           {/* Redo Button */}
@@ -434,8 +442,17 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
             disabled={historyIndex >= history.length - 1}
             className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
             <Redo
-              width={35}
-              height={35} />
+              width={34}
+              height={34} />
+          </button>
+
+          {/* Clear Button */}
+          <button
+            onClick={clearCanvas}
+            className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
+            <Delete
+              width={34}
+              height={34} />
           </button>
         </div>
       ) : (
@@ -445,49 +462,36 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
             onClick={() => setShowTool(true)}
             className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
             <ToolMenu
-              width={35}
-              height={35} />
+              width={34}
+              height={34} />
           </button>
         </div>
       )}
 
 
-      {/* Fixed Bottom Buttons */}
-      <div className="fixed bottom-0 w-full flex justify-between shadow-md">
-        {isConfirmed ? (
-          <>
-            <button
-              className="w-full py-4 bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-600 transition"
-              onClick={() => linkToBaseScan(hash)}
-            >
-              Proof
-            </button>
-            <button
-              className="w-full py-4 bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-600 transition"
-              onClick={() => linkToWarpcast(embedHash)}
-            >
-              Cast
-            </button>
-          </>
-        ) : (error ? (
+      {/* Fixed Content */}
+      {isConfirmed && (
+        <div className="fixed bottom-0 w-full flex justify-between shadow-md">
+          <button
+            className="w-full py-4 bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-600 transition"
+            onClick={() => linkToBaseScan(hash)}
+          >
+            Proof
+          </button>
+          <button
+            className="w-full py-4 bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-600 transition"
+            onClick={() => linkToWarpcast(embedHash)}
+          >
+            Cast
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <div className="fixed bottom-0 w-full flex justify-between shadow-md">
           <div className="bg-red-500 p-4 text-center text-white">Error: {(error as BaseError).shortMessage || error.message}</div>
-        ) : (
-          <>
-            <button
-              onClick={clearCanvas}
-              className="w-full py-4 bg-red-500 text-white text-2xl font-semibold hover:bg-red-600 transition"
-            >
-              Clear
-            </button>
-            <button
-              className="w-full py-4 bg-slate-500 text-white text-2xl font-semibold hover:bg-slate-700 transition"
-              onClick={() => setShowPreview(true)}
-            >
-              Preview
-            </button>
-          </>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
