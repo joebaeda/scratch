@@ -17,13 +17,15 @@ import Redo from "./Redo";
 import ToolMenu from "./ToolMenu";
 import Preview from "./Preview";
 import Delete from "./Delete";
+import { getUserNotificationDetails } from "@/lib/kv";
 
 interface MintProps {
+  fid: number;
   username: string;
   pfp: string;
 }
 
-const Mint: React.FC<MintProps> = ({ username, pfp }) => {
+const Mint: React.FC<MintProps> = ({ fid, username, pfp }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState('#000000');
@@ -235,6 +237,8 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
             mode: "same-origin",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+              fid: fid,
+              detail: getUserNotificationDetails(fid),
               title: `🎉 Congratulations ${username}`,
               body: "Now, Your Original Scratch Art is available on any NFT Marketplace that support base Network",
             }),
@@ -246,7 +250,7 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
       }
       sendNotify()
     }
-  }, [isConfirmed, showPreview, username])
+  }, [fid, isConfirmed, showPreview, username])
 
   const saveDrawing = async () => {
     const canvas = canvasRef.current
