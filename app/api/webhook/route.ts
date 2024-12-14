@@ -48,23 +48,23 @@ export async function POST(request: NextRequest) {
   switch (event.event) {
     case "frame_added":
       if (event.notificationDetails) {
-        await setUserNotificationDetails(String(fid), event.notificationDetails);
+        await setUserNotificationDetails(fid, event.notificationDetails);
         await sendFrameNotification({
           fid,
           title: "Welcome to Scratch of Art",
           body: "Scratch of Art is now added to your client",
         });
       } else {
-        await deleteUserNotificationDetails(String(fid));
+        await deleteUserNotificationDetails(fid);
       }
 
       break;
     case "frame_removed":
-      await deleteUserNotificationDetails(String(fid));
+      await deleteUserNotificationDetails(fid);
 
       break;
     case "notifications_enabled":
-      await setUserNotificationDetails(String(fid), event.notificationDetails);
+      await setUserNotificationDetails(fid, event.notificationDetails);
       await sendFrameNotification({
         fid,
         title: "Ding ding ding",
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
       break;
     case "notifications_disabled":
-      await deleteUserNotificationDetails(String(fid));
+      await deleteUserNotificationDetails(fid);
 
       break;
   }

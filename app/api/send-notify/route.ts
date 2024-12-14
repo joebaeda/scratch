@@ -5,7 +5,7 @@ import { setUserNotificationDetails } from "@/lib/kv";
 import { sendFrameNotification } from "@/lib/notify";
 
 const requestSchema = z.object({
-    fid: z.string(),
+    fid: z.number(),
     notificationDetails: notificationDetailsSchema,
     title: z.string(), // Adding title as parameter
     body: z.string(),  // Adding body as parameter
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const { title, body } = requestBody.data;
 
     const sendResult = await sendFrameNotification({
-        fid: Number(requestBody.data.fid),
+        fid: requestBody.data.fid,
         title,
         body,
     });

@@ -30,7 +30,7 @@ export default function Home() {
         const result = await sdk.actions.addFrame();
         if (result.added) {
           if (result.notificationDetails) {
-            setUserNotificationDetails(String(context?.client.clientFid), context?.client.notificationDetails as FrameNotificationDetails)
+            setUserNotificationDetails(context?.client.clientFid as number, context?.client.notificationDetails as FrameNotificationDetails)
           }
         }
       } catch (error) {
