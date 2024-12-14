@@ -1,9 +1,10 @@
 "use client"
 
-import sdk, { FrameContext } from "@farcaster/frame-sdk";
+import sdk, { FrameContext, FrameNotificationDetails } from "@farcaster/frame-sdk";
 import Mint from "./components/Mint";
 import { useEffect, useState } from "react";
 import { Redirect } from "./components/Redirect";
+import { setUserNotificationDetails } from "@/lib/kv";
 
 
 export default function Home() {
@@ -24,14 +25,26 @@ export default function Home() {
   }, [isSDKLoaded]);
 
   useEffect(() => {
-    sdk.actions.addFrame();
-  })
+    const addFrame = async () => {
+      try {
+        const result = await sdk.actions.addFrame();
+        if (result.added) {
+          if (result.notificationDetails) {
+            setUserNotificationDetails(context?.client.clientFid as number, context?.client.notificationDetails as FrameNotificationDetails)
+          }
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    addFrame()
+  }, [context?.client.clientFid, context?.client.notificationDetails])
 
   if (!isSDKLoaded) {
     return <div></div>;
   }
 
-  if (!context?.user.fid) {
+  if (!context?.client.added) {
     return (
       <Redirect />
     );
