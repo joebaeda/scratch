@@ -59,10 +59,10 @@ export default function Home() {
     return <div></div>;
   }
 
-  if (context?.user.fid) {
-    addFrame()
-  } else {
+  if (!context?.user.fid) {
     <Redirect />
+  } else {
+    addFrame()
   }
 
   return (
