@@ -13,10 +13,6 @@ export default function Home() {
   const [context, setContext] = useState<FrameContext>();
 
   useEffect(() => {
-    setUserNotificationDetails(context?.client.clientFid as number, context?.client.notificationDetails as FrameNotificationDetails);
-  }, [context]);
-
-  useEffect(() => {
     const load = async () => {
       const frameContext = await sdk.context;
       setContext(frameContext);
@@ -28,11 +24,27 @@ export default function Home() {
     }
   }, [isSDKLoaded]);
 
+  useEffect(() => {
+    const addFrame = async () => {
+      try {
+        const result = await sdk.actions.addFrame();
+        if (result.added) {
+          if (result.notificationDetails) {
+            setUserNotificationDetails(String(context?.client.clientFid), context?.client.notificationDetails as FrameNotificationDetails)
+          }
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    addFrame()
+  }, [context])
+
   if (!isSDKLoaded) {
     return <div></div>;
   }
 
-  if (!context?.client.added) {
+  if (!context?.client.clientFid ) {
     return (
       <Redirect />
     );

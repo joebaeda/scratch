@@ -6,27 +6,21 @@ const redis = new Redis({
     token: process.env.KV_REST_API_TOKEN,
 });
 
-function getUserNotificationDetailsKey(fid: number): string {
-    return `scratchnism:user:${fid}`;
-}
-
 export async function getUserNotificationDetails(
-    fid: number
+    fid: string
 ): Promise<FrameNotificationDetails | null> {
-    return await redis.get<FrameNotificationDetails>(
-        getUserNotificationDetailsKey(fid)
-    );
+    return await redis.get<FrameNotificationDetails>(fid);
 }
 
 export async function setUserNotificationDetails(
-    fid: number,
+    fid: string,
     notificationDetails: FrameNotificationDetails
 ): Promise<void> {
-    await redis.set(getUserNotificationDetailsKey(fid), notificationDetails);
+    await redis.set(fid, notificationDetails);
 }
 
 export async function deleteUserNotificationDetails(
-    fid: number
+    fid: string
 ): Promise<void> {
-    await redis.del(getUserNotificationDetailsKey(fid));
+    await redis.del(fid);
 }

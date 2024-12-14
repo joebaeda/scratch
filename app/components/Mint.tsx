@@ -238,7 +238,7 @@ const Mint: React.FC<MintProps> = ({ fid, username, pfp }) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               fid: fid,
-              detail: getUserNotificationDetails(fid),
+              detail: getUserNotificationDetails(String(fid)),
               title: `🎉 Congratulations ${username}`,
               body: "Now, Your Original Scratch Art is available on any NFT Marketplace that support base Network",
             }),
