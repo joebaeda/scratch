@@ -4,8 +4,6 @@ import {
   } from "@farcaster/frame-sdk";
   import { getUserNotificationDetails } from "@/lib/kv";
   
-  const appUrl = process.env.NEXT_PUBLIC_URL || "";
-  
   type SendFrameNotificationResult =
     | {
         state: "error";
@@ -38,7 +36,7 @@ import {
         notificationId: crypto.randomUUID(),
         title,
         body,
-        targetUrl: appUrl,
+        targetUrl: "https://scratchnism.vercel.app",
         tokens: [notificationDetails.token],
       } satisfies SendNotificationRequest),
     });

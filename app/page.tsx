@@ -1,10 +1,9 @@
 "use client"
 
-import sdk, { FrameContext, FrameNotificationDetails } from "@farcaster/frame-sdk";
+import sdk, { FrameContext } from "@farcaster/frame-sdk";
 import Mint from "./components/Mint";
 import { useEffect, useState } from "react";
 import { Redirect } from "./components/Redirect";
-import { setUserNotificationDetails } from "@/lib/kv";
 
 
 export default function Home() {
@@ -30,7 +29,26 @@ export default function Home() {
         const result = await sdk.actions.addFrame();
         if (result.added) {
           if (result.notificationDetails) {
-            setUserNotificationDetails(context?.client.clientFid as number, context?.client.notificationDetails as FrameNotificationDetails)
+
+            const response = await fetch('/api/send-notify', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                fid: context?.client.clientFid,
+                title: "Welcome to Scratch of Art Frame!",
+                body: "Scratch of Art Frame is now added to your client",
+                notificationDetails: context?.client.notificationDetails,
+              }),
+            })
+
+            const data = await response.json()
+            if (data.success) {
+              console.log('Notification sent successfully!')
+            } else {
+              console.log('Failed to send notification: ' + JSON.stringify(data.error))
+            }
           }
         }
       } catch (error) {
