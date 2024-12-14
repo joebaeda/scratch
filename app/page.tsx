@@ -1,10 +1,9 @@
 "use client"
 
-import sdk, { FrameContext, FrameNotificationDetails } from "@farcaster/frame-sdk";
+import sdk, { FrameContext } from "@farcaster/frame-sdk";
 import Mint from "./components/Mint";
 import { useEffect, useState } from "react";
 import { Redirect } from "./components/Redirect";
-import { setUserNotificationDetails } from "@/lib/kv";
 
 
 export default function Home() {
@@ -30,7 +29,16 @@ export default function Home() {
         const result = await sdk.actions.addFrame();
         if (result.added) {
           if (result.notificationDetails) {
-            setUserNotificationDetails(context?.client.clientFid as number, context?.client.notificationDetails as FrameNotificationDetails)
+            await fetch("/api/tokens", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                fid: context?.user.fid,
+                token: result.notificationDetails.token,
+              }),
+            });
           }
         }
       } catch (error) {
@@ -44,7 +52,7 @@ export default function Home() {
     return <div></div>;
   }
 
-  if (!context?.client.clientFid ) {
+  if (!context?.user.fid) {
     return (
       <Redirect />
     );
@@ -52,7 +60,7 @@ export default function Home() {
 
   return (
     <main>
-      <Mint username={context.user.displayName as string} pfp={context.user.pfpUrl as string} fid={context.user.fid} />
+      <Mint username={context.user.displayName as string} pfp={context.user.pfpUrl as string} />
     </main>
   );
 }

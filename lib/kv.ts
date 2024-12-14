@@ -1,4 +1,3 @@
-import { FrameNotificationDetails } from "@farcaster/frame-sdk";
 import { Redis } from "@upstash/redis";
 
 const redis = new Redis({
@@ -6,27 +5,17 @@ const redis = new Redis({
     token: process.env.KV_REST_API_TOKEN,
 });
 
-function getUserNotificationDetailsKey(fid: number): string {
-    return `scratch:user:${fid}`;
-}
-
-export async function getUserNotificationDetails(
-    fid: number
-): Promise<FrameNotificationDetails | null> {
-    return await redis.get<FrameNotificationDetails>(
-        getUserNotificationDetailsKey(fid)
-    );
-}
-
-export async function setUserNotificationDetails(
+export const setUserNotificationDetails = async (
     fid: number,
-    notificationDetails: FrameNotificationDetails
-): Promise<void> {
-    await redis.set(getUserNotificationDetailsKey(fid), notificationDetails);
-}
+    token: string,
+) => {
+    return redis.set(`tokens:fid:${fid}`, token);
+};
 
-export async function deleteUserNotificationDetails(
-    fid: number
-): Promise<void> {
-    await redis.del(getUserNotificationDetailsKey(fid));
-}
+export const getUserNotificationDetails = async (fid: number) => {
+    return redis.get<string>(`tokens:fid:${fid}`);
+};
+
+export const deleteUserNotificationDetails = async (fid: number) => {
+    return redis.del(`tokens:fid:${fid}`);
+};
