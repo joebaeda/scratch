@@ -22,7 +22,7 @@ import {
     title: string;
     body: string;
   }): Promise<SendFrameNotificationResult> {
-    const notificationDetails = await getUserNotificationDetails(fid);
+    const notificationDetails = await getUserNotificationDetails(String(fid));
     if (!notificationDetails) {
       return { state: "no_token" };
     }
