@@ -1,21 +1,32 @@
+import { FrameNotificationDetails } from "@farcaster/frame-sdk";
 import { Redis } from "@upstash/redis";
 
 const redis = new Redis({
-    url: process.env.KV_REST_API_URL,
-    token: process.env.KV_REST_API_TOKEN,
+  url: process.env.KV_REST_API_URL,
+  token: process.env.KV_REST_API_TOKEN,
 });
 
-export const setUserNotificationDetails = async (
-    fid: number,
-    token: string,
-) => {
-    return redis.set(`tokens:fid:${fid}`, token);
-};
+function getUserNotificationDetailsKey(fid: number): string {
+  return `scratch:user:${fid}`;
+}
 
-export const getUserNotificationDetails = async (fid: number) => {
-    return redis.get<string>(`tokens:fid:${fid}`);
-};
+export async function getUserNotificationDetails(
+  fid: number
+): Promise<FrameNotificationDetails | null> {
+  return await redis.get<FrameNotificationDetails>(
+    getUserNotificationDetailsKey(fid)
+  );
+}
 
-export const deleteUserNotificationDetails = async (fid: number) => {
-    return redis.del(`tokens:fid:${fid}`);
-};
+export async function setUserNotificationDetails(
+  fid: number,
+  notificationDetails: FrameNotificationDetails
+): Promise<void> {
+  await redis.set(getUserNotificationDetailsKey(fid), notificationDetails);
+}
+
+export async function deleteUserNotificationDetails(
+  fid: number
+): Promise<void> {
+  await redis.del(getUserNotificationDetailsKey(fid));
+}

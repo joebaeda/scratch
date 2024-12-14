@@ -8,6 +8,7 @@ import {
   deleteUserNotificationDetails,
   setUserNotificationDetails,
 } from "@/lib/kv";
+import { sendFrameNotification } from "@/lib/notify";
 
 export async function POST(request: NextRequest) {
   const requestJson = await request.json();
@@ -47,30 +48,33 @@ export async function POST(request: NextRequest) {
   switch (event.event) {
     case "frame_added":
       if (event.notificationDetails) {
-        await setUserNotificationDetails(fid, event.notificationDetails.token);
-        console.log(
-          `Saved notification token for fid ${fid}: ${event.notificationDetails.token}`,
-        );
+        await setUserNotificationDetails(fid, event.notificationDetails);
+        await sendFrameNotification({
+          fid,
+          title: "Welcome to Scratch of Art Frame!",
+          body: "Scratch of Art Frame is now added to your client",
+        });
       } else {
         await deleteUserNotificationDetails(fid);
       }
-      break;
 
+      break;
     case "frame_removed":
       await deleteUserNotificationDetails(fid);
-      console.log(`Removed notification token for fid ${fid}`);
-      break;
 
+      break;
     case "notifications_enabled":
-      await setUserNotificationDetails(fid, event.notificationDetails.token);
-      console.log(
-        `Updated notification token for fid ${fid}: ${event.notificationDetails.token}`,
-      );
-      break;
+      await setUserNotificationDetails(fid, event.notificationDetails);
+      await sendFrameNotification({
+        fid,
+        title: "Ding ding ding",
+        body: "Notifications are now enabled",
+      });
 
+      break;
     case "notifications_disabled":
       await deleteUserNotificationDetails(fid);
-      console.log(`Disabled notifications for fid ${fid}`);
+
       break;
   }
 
