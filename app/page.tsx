@@ -23,54 +23,51 @@ export default function Home() {
     }
   }, [isSDKLoaded]);
 
-  useEffect(() => {
-    const addFrame = async () => {
-      try {
-        const result = await sdk.actions.addFrame();
-        if (result.added) {
-          if (result.notificationDetails) {
+  const addFrame = async () => {
+    try {
+      const result = await sdk.actions.addFrame();
+      if (result.added) {
+        if (result.notificationDetails) {
 
-            const response = await fetch('/api/send-notify', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                fid: context?.client.clientFid,
-                title: "Welcome to Scratch of Art Frame!",
-                body: "Scratch of Art Frame is now added to your client",
-                notificationDetails: context?.client.notificationDetails,
-              }),
-            })
+          const response = await fetch('/api/send-notify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              fid: context?.client.clientFid,
+              title: "Welcome to Scratch of Art Frame!",
+              body: "Scratch of Art Frame is now added to your client",
+              notificationDetails: context?.client.notificationDetails,
+            }),
+          })
 
-            const data = await response.json()
-            if (data.success) {
-              console.log('Notification sent successfully!')
-            } else {
-              console.log('Failed to send notification: ' + JSON.stringify(data.error))
-            }
+          const data = await response.json()
+          if (data.success) {
+            console.log('Notification sent successfully!')
+          } else {
+            console.log('Failed to send notification: ' + JSON.stringify(data.error))
           }
         }
-      } catch (error) {
-        console.log(error)
       }
+    } catch (error) {
+      console.log(error)
     }
-    addFrame()
-  }, [context])
+  }
 
   if (!isSDKLoaded) {
     return <div></div>;
   }
 
-  if (!context?.user.fid) {
-    return (
-      <Redirect />
-    );
+  if (context?.user.fid) {
+    addFrame()
+  } else {
+    <Redirect />
   }
 
   return (
     <main>
-      <Mint username={context.user.displayName as string} pfp={context.user.pfpUrl as string} />
+      <Mint username={context?.user.displayName as string} pfp={context?.user.pfpUrl as string} />
     </main>
   );
 }
