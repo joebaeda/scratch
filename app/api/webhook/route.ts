@@ -1,148 +1,82 @@
 import {
-  encodedJsonFarcasterSignatureSchema,
-  eventPayloadSchema,
-  jsonFarcasterSignatureHeaderSchema,
-} from "@farcaster/frame-sdk";
+  ParseWebhookEvent,
+  parseWebhookEvent,
+  verifyAppKeyWithNeynar,
+} from "@farcaster/frame-node";
 import { NextRequest } from "next/server";
-import { ed25519 } from "@noble/curves/ed25519";
 import {
-  setUserNotificationDetails,
   deleteUserNotificationDetails,
+  setUserNotificationDetails,
 } from "@/lib/kv";
-import { createPublicClient, http, Hex } from "viem";
-import { optimism } from "viem/chains";
-import { KEY_REGISTRY_ADDRESS, keyRegistryABI } from "@farcaster/core";
 import { sendFrameNotification } from "@/lib/notify";
 
 export async function POST(request: NextRequest) {
   const requestJson = await request.json();
 
-  const requestBody =
-    encodedJsonFarcasterSignatureSchema.safeParse(requestJson);
-
-  if (requestBody.success === false) {
-    return Response.json(
-      { success: false, errors: requestBody.error.errors },
-      { status: 400 },
-    );
-  }
-
-  const headerData = JSON.parse(
-    Buffer.from(requestBody.data.header, "base64url").toString("utf-8"),
-  );
-  const header = jsonFarcasterSignatureHeaderSchema.safeParse(headerData);
-  if (header.success === false) {
-    return Response.json(
-      { success: false, errors: header.error.errors },
-      { status: 400 },
-    );
-  }
-  const fid = header.data.fid;
-
-  const payloadData = JSON.parse(
-    Buffer.from(requestBody.data.payload, "base64url").toString("utf-8"),
-  );
-  const payload = eventPayloadSchema.safeParse(payloadData);
-
-  if (payload.success === false) {
-    return Response.json(
-      { success: false, errors: payload.error.errors },
-      { status: 400 },
-    );
-  }
-
-  // Verify signature
-  const signedInput = new Uint8Array(
-    Buffer.from(requestBody.data.header + "." + requestBody.data.payload),
-  );
-  const signature = new Uint8Array(
-    Buffer.from(requestBody.data.signature, "base64url"),
-  );
-  const verifyResult = ed25519.verify(
-    signature,
-    signedInput,
-    header.data.key.slice(2),
-  );
-
-  if (!verifyResult) {
-    return Response.json(
-      { success: false, errors: ["Invalid signature"] },
-      { status: 400 },
-    );
-  }
-
-  // Verify key is registered in KeyRegistry contract
-  const optimismClient = createPublicClient({
-    chain: optimism,
-    transport: http("https://mainnet.optimism.io"),
-  });
-
+  let data;
   try {
-    const keyData = await optimismClient.readContract({
-      address: KEY_REGISTRY_ADDRESS,
-      abi: keyRegistryABI,
-      functionName: "keyDataOf",
-      args: [BigInt(fid), header.data.key as Hex],
-    });
+    data = await parseWebhookEvent(requestJson, verifyAppKeyWithNeynar);
+  } catch (e: unknown) {
+    const error = e as ParseWebhookEvent.ErrorType;
 
-    if (!keyData || keyData.keyType !== 1 || keyData.state !== 1) {
-      return Response.json(
-        { success: false, errors: ["Invalid signer key"] },
-        { status: 400 },
-      );
+    switch (error.name) {
+      case "VerifyJsonFarcasterSignature.InvalidDataError":
+      case "VerifyJsonFarcasterSignature.InvalidEventDataError":
+        // The request data is invalid
+        return Response.json(
+          { success: false, error: error.message },
+          { status: 400 }
+        );
+      case "VerifyJsonFarcasterSignature.InvalidAppKeyError":
+        // The app key is invalid
+        return Response.json(
+          { success: false, error: error.message },
+          { status: 401 }
+        );
+      case "VerifyJsonFarcasterSignature.VerifyAppKeyError":
+        // Internal error verifying the app key (caller may want to try again)
+        return Response.json(
+          { success: false, error: error.message },
+          { status: 500 }
+        );
     }
-  } catch (error) {
-    console.error("Error verifying key in registry:", error);
-    return Response.json(
-      { success: false, error: "Failed to verify signer key" },
-      { status: 500 },
-    );
   }
 
-  try {
-    switch (payload.data.event) {
-      case "frame_added":
-        if (payload.data.notificationDetails) {
-          await setUserNotificationDetails(
-            fid,
-            payload.data.notificationDetails,
-          );
-          await sendFrameNotification({
-            fid,
-            title: "Welcome to Scratch of Art Frame",
-            body: "Scratch of Art Frame is now added to your client",
-          });
-        } else {
-          await deleteUserNotificationDetails(fid);
-        }
+  const fid = data.fid;
+  const event = data.event;
 
-        break;
-
-      case "frame_removed":
-        await deleteUserNotificationDetails(fid);
-
-        break;
-      case "notifications_enabled":
-        await setUserNotificationDetails(fid, payload.data.notificationDetails);
+  switch (event.event) {
+    case "frame_added":
+      if (event.notificationDetails) {
+        await setUserNotificationDetails(fid, event.notificationDetails);
         await sendFrameNotification({
           fid,
-          title: "Ding ding ding",
-          body: "Notifications are now enabled",
+          title: "Welcome to Scratch of Art",
+          body: "Scratch of Art is now added to your client",
         });
-
-        break;
-      case "notifications_disabled":
+      } else {
         await deleteUserNotificationDetails(fid);
+      }
 
-        break;
-    }
+      break;
+    case "frame_removed":
+      await deleteUserNotificationDetails(fid);
 
-    return Response.json({ success: true });
-  } catch (error) {
-    console.error("Error handling webhook:", error);
-    return Response.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 },
-    );
+      break;
+    case "notifications_enabled":
+      await setUserNotificationDetails(fid, event.notificationDetails);
+      await sendFrameNotification({
+        fid,
+        title: "Ding ding ding",
+        body: "Notifications are now enabled",
+      });
+
+      break;
+    case "notifications_disabled":
+      await deleteUserNotificationDetails(fid);
+
+      break;
   }
+
+  return Response.json({ success: true });
 }

@@ -9,9 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@farcaster/core": "^0.15.6",
+    "@farcaster/frame-node": "^0.0.3",
     "@farcaster/frame-sdk": "^0.0.16",
-    "@noble/ed25519": "^2.1.0",
     "@tanstack/react-query": "^5.62.3",
     "idb": "^8.0.0",
     "next": "15.0.4",

@@ -1,15 +1,13 @@
 "use client"
 
-import sdk, { FrameContext } from "@farcaster/frame-sdk";
+import sdk, { FrameContext, FrameNotificationDetails } from "@farcaster/frame-sdk";
 import Mint from "./components/Mint";
 import { useEffect, useState } from "react";
 import { Redirect } from "./components/Redirect";
-import { useAccount } from "wagmi";
 import { setUserNotificationDetails } from "@/lib/kv";
 
 
 export default function Home() {
-  const { address } = useAccount();
 
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<FrameContext>();
@@ -27,22 +25,18 @@ export default function Home() {
   }, [isSDKLoaded]);
 
   useEffect(() => {
-    if (address) {
-      const addFrame = async () => {
-        try {
-          const result = await sdk.actions.addFrame();
-          if (result.added) {
-            if (result.notificationDetails) {
-              setUserNotificationDetails(context?.user.fid as number, result.notificationDetails)
-            }
-          }
-        } catch (error) {
-          console.log(error)
+    const addFrame = async () => {
+      try {
+        const result = await sdk.actions.addFrame();
+        if (result.added) {
+          setUserNotificationDetails(context?.user.fid as number, result.notificationDetails as FrameNotificationDetails)
         }
+      } catch (error) {
+        console.log(error)
       }
-      addFrame()
     }
-  }, [address, context?.user.fid])
+    addFrame()
+  }, [context?.user.fid])
 
   if (!isSDKLoaded) {
     return <div></div>;
