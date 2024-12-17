@@ -337,8 +337,8 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
       )}
 
       {showPreview && (
-        <div className="fixed max-w-[500] p-4 inset-0 flex items-center justify-center z-10 bg-gray-900 bg-opacity-50">
-          <div className="flex w-full p-4 space-y-5 flex-col bg-white rounded-2xl shadow-lg">
+        <div className="fixed max-h-[384px] p-4 inset-0 flex items-center justify-center z-10 bg-gray-900 bg-opacity-50">
+          <div className="flex p-4 space-y-5 flex-col bg-white rounded-2xl shadow-lg">
             <Image
               src={previewUrl}
               width={500}
