@@ -2,8 +2,8 @@
 
 import sdk, { FrameContext } from "@farcaster/frame-sdk";
 import Mint from "./components/Mint";
-import { useEffect, useState } from "react";
-import { Redirect } from "./components/Redirect";
+import { useCallback, useEffect, useState } from "react";
+import Welcome from "./components/Welcome";
 import Loading from "./components/Loading";
 
 
@@ -24,23 +24,27 @@ export default function Home() {
     }
   }, [isSDKLoaded]);
 
-  useEffect(() => {
-    const addScratch = async () => {
-      if (!context?.client.added)
-        await sdk.actions.addFrame();
+  const addScratch = useCallback(async () => {
+    try {
+
+      await sdk.actions.addFrame();
+
+    } catch (error) {
+      console.log(`Error: ${error}`);
     }
-    addScratch()
-  }, [context?.client.added]);
+  }, []);
 
   if (!isSDKLoaded) {
-    return <Redirect />;
+    return <Loading />;
+  }
+
+  if (isSDKLoaded && !context?.client.added) {
+    return <Welcome addScratch={addScratch} />
   }
 
   return (
     <main>
-      {context?.client.added ? (
-        <Mint username={context.user.username as string} pfp={context.user.pfpUrl as string} />
-      ) : (<Loading />)}
+      <Mint username={context?.user.username as string} pfp={context?.user.pfpUrl as string} />
     </main>
   );
 }

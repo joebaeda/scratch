@@ -17,6 +17,9 @@ import Redo from "./Redo";
 import ToolMenu from "./ToolMenu";
 import Preview from "./Preview";
 import Delete from "./Delete";
+import Gallery from "./Gallery";
+import CloseButton from "./CloseButton";
+import GalleryButton from "./GalleryButton";
 
 interface MintProps {
   username: string;
@@ -37,6 +40,7 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
   const [showTool, setShowTool] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
 
   const chainId = useChainId();
   const { data: hash, error, isPending, writeContract } = useWriteContract()
@@ -400,6 +404,15 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
               width={34}
               height={34} />
           </button>
+
+          {/* Show Gallery Button */}
+          <button
+            onClick={() => setShowGallery(true)}
+            className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
+            <GalleryButton
+              width={34}
+              height={34} />
+          </button>
         </div>
       ) : (
         <div className="absolute flex flex-col top-4 left-4">
@@ -487,6 +500,23 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
           >
             Close
           </button>
+        </div>
+      )}
+
+      {showGallery && (
+        <div className="fixed p-4 inset-0 z-50 overflow-hidden bg-gray-900 bg-opacity-50 flex items-center justify-center">
+          <div className="relative w-full h-full max-w-4xl max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden">
+            <button
+              onClick={() => setShowGallery(false)}
+              className="absolute bg-red-600 top-0 z-10 right-0 rounded-bl-xl transition"
+              aria-label="Close gallery"
+            >
+              <CloseButton className="w-10 h-10 text-gray-200" />
+            </button>
+            <div className="overflow-y-auto h-full p-6">
+              <Gallery />
+            </div>
+          </div>
         </div>
       )}
 
