@@ -4,6 +4,7 @@ import sdk, { FrameContext } from "@farcaster/frame-sdk";
 import Mint from "./components/Mint";
 import { useEffect, useState } from "react";
 import { Redirect } from "./components/Redirect";
+import Loading from "./components/Loading";
 
 
 export default function Home() {
@@ -23,23 +24,19 @@ export default function Home() {
     }
   }, [isSDKLoaded]);
 
-  useEffect(() => {
-    sdk.actions.addFrame()
-  }, [context])
-
   if (!isSDKLoaded) {
-    return <div></div>;
+    return <Redirect />;
   }
 
-  if (!context?.user.fid) {
+  if (!context?.client.added) {
     return (
-      <Redirect />
+      <Loading />
     );
   }
 
   return (
     <main>
-      <Mint username={context.user.displayName as string} pfp={context.user.pfpUrl as string} />
+      <Mint username={context.user.username as string} pfp={context.user.pfpUrl as string} />
     </main>
   );
 }
