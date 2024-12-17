@@ -44,7 +44,7 @@ export default function Home() {
 
   return (
     <main>
-      <Mint username={context?.user.username as string} pfp={context?.user.pfpUrl as string} />
+      <Mint fid={context?.user.fid as number} username={context?.user.username as string} pfp={context?.user.pfpUrl as string} />
     </main>
   );
 }

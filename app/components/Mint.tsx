@@ -22,11 +22,12 @@ import CloseButton from "./CloseButton";
 import GalleryButton from "./GalleryButton";
 
 interface MintProps {
+  fid: number
   username: string;
   pfp: string;
 }
 
-const Mint: React.FC<MintProps> = ({ username, pfp }) => {
+const Mint: React.FC<MintProps> = ({ fid, username, pfp }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState('#000000');
@@ -55,6 +56,25 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
       sdk.actions.openUrl(`https://basescan.org/tx/${hash}`);
     }
   }, []);
+
+
+  // Notify user
+  const notifyUser = async (title: string, body: string) => {
+    try {
+      const response = await fetch('/api/send-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fid, title, body }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Notification failed.');
+      }
+    } catch (error) {
+      console.error("Notification error:", error);
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -289,6 +309,8 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
         args: [`ipfs://${ipfsHash}`],
       });
 
+      await notifyUser("Congratulations 🎉", "One Awesome Scratch of Art has been minted on the Base Network.");
+
     } else {
       console.error("Failed to upload drawing to IPFS.");
     }
@@ -521,34 +543,44 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
       )}
 
 
-      {/* Fixed Content */}
-      {
-        isConfirmed && (
-          <div className="fixed bottom-0 w-full flex justify-between shadow-md">
-            <button
-              className="w-full py-4 bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-600 transition"
-              onClick={() => linkToBaseScan(hash)}
-            >
-              Proof
-            </button>
-            <button
-              className="w-full py-4 bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-600 transition"
-              onClick={() => linkToWarpcast(embedHash)}
-            >
-              Cast
-            </button>
+      {/* Transaction Success */}
+      {isConfirmed && (
+        <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-900 bg-opacity-50">
+          <div className="flex flex-col items-center bg-white rounded-2xl shadow-lg w-[90%] max-w-[360px] aspect-square p-4 space-y-5">
+            <Image
+              src={`https://gateway.pinata.cloud/ipfs/${embedHash}`}
+              width={360}
+              height={360}
+              alt={`Scratch Of Art by ${username}`}
+              className="object-cover border border-gray-300 rounded-2xl w-full h-full"
+              priority
+            />
+            <div className="flex flex-row gap-2 w-full">
+              <button
+                className="w-full py-4 bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-600 transition"
+                onClick={() => linkToBaseScan(hash)}
+              >
+                Proof
+              </button>
+              <button
+                className="w-full py-4 bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-600 transition"
+                onClick={() => linkToWarpcast(embedHash)}
+              >
+                Cast
+              </button>
+            </div>
           </div>
-        )
-      }
+        </div>
+      )}
 
-      {
-        error && (
-          <div className="fixed bottom-0 w-full flex justify-between shadow-md">
-            <div className="bg-red-500 p-4 text-center text-white">Error: {(error as BaseError).shortMessage || error.message}</div>
-          </div>
-        )
-      }
-    </div >
+      {/* Transaction Error */}
+      {error && (
+        <div className="fixed bottom-0 w-full flex justify-between shadow-md">
+          <div className="bg-red-500 p-4 text-center text-white">Error: {(error as BaseError).shortMessage || error.message}</div>
+        </div>
+      )}
+
+    </div>
   );
 };
 
