@@ -436,7 +436,7 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
             />
             <button
               onClick={() => setShowColorPicker(false)}
-              className="w-full py-4 rounded-2xl bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-700 transition"
+              className="w-full py-2 rounded-2xl bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-700 transition"
             >
               Close
             </button>
