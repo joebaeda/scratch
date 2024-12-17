@@ -24,19 +24,23 @@ export default function Home() {
     }
   }, [isSDKLoaded]);
 
+  useEffect(() => {
+    const addScratch = async () => {
+      if (!context?.client.added)
+        await sdk.actions.addFrame();
+    }
+    addScratch()
+  }, [context?.client.added]);
+
   if (!isSDKLoaded) {
     return <Redirect />;
   }
 
-  if (!context?.client.added) {
-    return (
-      <Loading />
-    );
-  }
-
   return (
     <main>
-      <Mint username={context.user.username as string} pfp={context.user.pfpUrl as string} />
+      {context?.client.added ? (
+        <Mint username={context.user.username as string} pfp={context.user.pfpUrl as string} />
+      ) : (<Loading />)}
     </main>
   );
 }

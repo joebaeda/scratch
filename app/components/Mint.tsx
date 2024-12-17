@@ -29,6 +29,7 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
   const [color, setColor] = useState('#000000');
   const [brushSize, setBrushSize] = useState(5);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showBrushTool, setShowBrushTool] = useState(false);
   const [tool, setTool] = useState<'brush' | 'fill'>('brush');
   const [history, setHistory] = useState<ImageData[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
@@ -98,15 +99,17 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
     const canvas = canvasRef.current;
     if (canvas) {
       const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
       if ('touches' in e) {
         return {
-          x: e.touches[0].clientX - rect.left,
-          y: e.touches[0].clientY - rect.top,
+          x: (e.touches[0].clientX - rect.left) * scaleX,
+          y: (e.touches[0].clientY - rect.top) * scaleY,
         };
       } else {
         return {
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
+          x: (e.clientX - rect.left) * scaleX,
+          y: (e.clientY - rect.top) * scaleY,
         };
       }
     }
@@ -116,9 +119,9 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
   const bucketFill = (ctx: CanvasRenderingContext2D, x: number, y: number, fillColor: string) => {
     const canvas = ctx.canvas;
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const floodFill = new FloodFill(imageData)
-    floodFill.fill(fillColor, x, y, 0)
-    ctx.putImageData(floodFill.imageData, 0, 0)
+    const floodFill = new FloodFill(imageData);
+    floodFill.fill(fillColor, Math.floor(x), Math.floor(y), 0);
+    ctx.putImageData(floodFill.imageData, 0, 0);
   };
 
 
@@ -132,9 +135,9 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
         setIsDrawing(true);
         if (tool === 'brush') {
           ctx.beginPath();
-          ctx.moveTo(x, y);
+          ctx.moveTo(Math.floor(x), Math.floor(y));
         } else if (tool === 'fill') {
-          bucketFill(ctx, x, y, color);
+          bucketFill(ctx, Math.floor(x), Math.floor(y), color);
         }
       }
     }
@@ -150,7 +153,7 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
       if (ctx) {
         ctx.strokeStyle = color;
         ctx.lineWidth = brushSize;
-        ctx.lineTo(x, y);
+        ctx.lineTo(Math.floor(x), Math.floor(y));
         ctx.stroke();
       }
     }
@@ -221,6 +224,10 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
   }
 
   useEffect(() => {
+    if (showBrushTool) {
+      setTool("brush")
+    }
+
     if (showPreview) {
       savePreview();
     }
@@ -228,7 +235,7 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
     if (isConfirmed) {
       setShowPreview(false)
     }
-  }, [isConfirmed, showPreview])
+  }, [isConfirmed, showPreview, showBrushTool])
 
   const saveDrawing = async () => {
     const canvas = canvasRef.current
@@ -292,6 +299,25 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
   return (
     <div className="bg-gray-50 h-screen relative">
 
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="flex items-center justify-center p-4">
+          {/* Canvas */}
+          <canvas
+            ref={canvasRef}
+            width={360}
+            height={360}
+            onMouseDown={startDrawing}
+            onMouseMove={draw}
+            onMouseUp={stopDrawing}
+            onMouseOut={stopDrawing}
+            onTouchStart={startDrawing}
+            onTouchMove={draw}
+            onTouchEnd={stopDrawing}
+            className="w-[360px] h-[360px] cursor-crosshair touch-none bg-gray-200 rounded-lg"
+          />
+        </div>
+      </div>
+
       {/* Profile */}
       <div className="absolute flex flex-row space-x-4 top-4 right-4">
         <button
@@ -305,86 +331,6 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
           <p className="font-bold pr-3">{username}</p>
         </div>
       </div>
-
-      {/* Brush size options */}
-      <div className="absolute w-full bottom-0 p-4 bg-gray-200 rounded-t-2xl">
-        <input
-          type="range"
-          min="1"
-          max="50"
-          value={brushSize}
-          onChange={(e) => setBrushSize(parseInt(e.target.value))}
-          className="w-full"
-          aria-label="Brush size"
-        />
-      </div>
-
-      {showColorPicker && (
-        <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-900 bg-opacity-50">
-          <div className="flex space-y-4 flex-col bg-white p-4 rounded-md shadow-lg">
-            <SketchPicker
-              color={color}
-              onChange={(newColor) => setColor(newColor.hex)}
-            />
-            <button
-              onClick={() => setShowColorPicker(false)}
-              className="w-full py-4 rounded-2xl bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-700 transition"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
-      {showPreview && (
-        <div className="fixed max-h-[384px] p-4 inset-0 flex items-center justify-center z-10 bg-gray-900 bg-opacity-50">
-          <div className="flex p-4 space-y-5 flex-col bg-white rounded-2xl shadow-lg">
-            <Image
-              src={previewUrl}
-              width={500}
-              height={500}
-              alt={`Scratch Of Art by ${username}`}
-              className="object-cover rounded-2xl"
-              priority
-            />
-            <div className="flex flex-row gap-2">
-              <button
-                onClick={() => setShowPreview(false)}
-                disabled={isPending}
-                className="w-full py-4 rounded-2xl bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-700 transition"
-              >
-                Close
-              </button>
-              <button
-                className="w-full py-4 rounded-2xl bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-700 transition"
-                disabled={chainId !== base.id || isPending}
-                onClick={handleMint}
-              >
-                {isPending
-                  ? "Confirming..."
-                  : isConfirming
-                    ? "Waiting..."
-                    : "Mint"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Canvas */}
-      <canvas
-        ref={canvasRef}
-        width={500}
-        height={500}
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseOut={stopDrawing}
-        onTouchStart={startDrawing}
-        onTouchMove={draw}
-        onTouchEnd={stopDrawing}
-        className="w-full h-full cursor-crosshair touch-none"
-      />
 
       {showTool ? (
         <div className="absolute flex flex-col space-y-6 top-4 left-4">
@@ -408,7 +354,7 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
 
           {/*Brush button */}
           <button
-            onClick={() => setTool("brush")}
+            onClick={() => setShowBrushTool(true)}
             className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400"
           >
             <PaintBrush
@@ -468,31 +414,111 @@ const Mint: React.FC<MintProps> = ({ username, pfp }) => {
         </div>
       )}
 
+      {showColorPicker && (
+        <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-900 bg-opacity-50">
+          <div className="flex space-y-4 flex-col bg-white p-4 rounded-md shadow-lg">
+            <SketchPicker
+              color={color}
+              onChange={(newColor) => setColor(newColor.hex)}
+            />
+            <button
+              onClick={() => setShowColorPicker(false)}
+              className="w-full py-4 rounded-2xl bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-700 transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showPreview && (
+        <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-900 bg-opacity-50">
+          <div className="flex flex-col items-center bg-white rounded-2xl shadow-lg w-[90%] max-w-[360px] aspect-square p-4 space-y-5">
+            <Image
+              src={previewUrl}
+              width={360}
+              height={360}
+              alt={`Scratch Of Art by ${username}`}
+              className="object-cover border border-gray-300 rounded-2xl w-full h-full"
+              priority
+            />
+            <div className="flex flex-row gap-2 w-full">
+              <button
+                onClick={() => setShowPreview(false)}
+                disabled={isPending}
+                className="w-full py-2 rounded-2xl bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-700 transition"
+              >
+                Close
+              </button>
+              <button
+                className="w-full py-2 rounded-2xl bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-700 transition"
+                disabled={chainId !== base.id || isPending}
+                onClick={handleMint}
+              >
+                {isPending
+                  ? "Confirming..."
+                  : isConfirming
+                    ? "Waiting..."
+                    : "Mint"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+      )}
+
+      {showBrushTool && (
+        <div className="fixed flex flex-col space-y-4 p-4 inset-0 items-center justify-center z-10 bg-gray-900 bg-opacity-50">
+          <div className="w-64 p-4 bg-gray-200 rounded-2xl">
+            <input
+              type="range"
+              min="1"
+              max="50"
+              value={brushSize}
+              onChange={(e) => setBrushSize(parseInt(e.target.value))}
+              className="w-full"
+              aria-label="Brush size"
+            />
+          </div>
+          <button
+            onClick={() => setShowBrushTool(false)}
+            disabled={isPending}
+            className="w-64 py-2 rounded-2xl bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-700 transition"
+          >
+            Close
+          </button>
+        </div>
+      )}
+
 
       {/* Fixed Content */}
-      {isConfirmed && (
-        <div className="fixed bottom-0 w-full flex justify-between shadow-md">
-          <button
-            className="w-full py-4 bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-600 transition"
-            onClick={() => linkToBaseScan(hash)}
-          >
-            Proof
-          </button>
-          <button
-            className="w-full py-4 bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-600 transition"
-            onClick={() => linkToWarpcast(embedHash)}
-          >
-            Cast
-          </button>
-        </div>
-      )}
+      {
+        isConfirmed && (
+          <div className="fixed bottom-0 w-full flex justify-between shadow-md">
+            <button
+              className="w-full py-4 bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-600 transition"
+              onClick={() => linkToBaseScan(hash)}
+            >
+              Proof
+            </button>
+            <button
+              className="w-full py-4 bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-600 transition"
+              onClick={() => linkToWarpcast(embedHash)}
+            >
+              Cast
+            </button>
+          </div>
+        )
+      }
 
-      {error && (
-        <div className="fixed bottom-0 w-full flex justify-between shadow-md">
-          <div className="bg-red-500 p-4 text-center text-white">Error: {(error as BaseError).shortMessage || error.message}</div>
-        </div>
-      )}
-    </div>
+      {
+        error && (
+          <div className="fixed bottom-0 w-full flex justify-between shadow-md">
+            <div className="bg-red-500 p-4 text-center text-white">Error: {(error as BaseError).shortMessage || error.message}</div>
+          </div>
+        )
+      }
+    </div >
   );
 };
 

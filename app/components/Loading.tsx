@@ -1,17 +1,7 @@
 const Loading = () => {
     return (
-        <div className="fixed inset-0 flex flex-col space-y-3 items-center justify-center z-10 bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xmlSpace="preserve" width="48" height="48" fill="#fff" stroke="#fff">
-                <g strokeWidth="0" />
-                <g strokeLinecap="round" strokeLinejoin="round" />
-                <path fill="#752f4d" d="M512 0H300.522v33.391h-66.783v33.392h-66.782v33.391h-33.392v33.391h-33.391v33.393H66.783v66.782H33.391v66.784H0V512h144.696V311.652h33.393l-.002-66.782h33.762v-33.392l33.022.001-.001-33.392h66.782v-33.391H512z" />
-                <path fill="#e5b815" d="M512 222.609H322.783l.001 33.391h-33.39l-.003 33.391h-33.39L256 322.783h-33.391V512h133.565V389.565h33.391v-33.391H512v-33.391z" />
-                <path fill="#495cee" d="M512 110.562H311.652l.001 34.134h-66.782l-.001 33.391h-33.391l-.001 33.391h-33.39l-.001 33.392h-33.389l-.002 66.782h-33.392V512H256V322.783h33.392l-.001-33.392h33.393L322.783 256H512z" />
-                <path d="M289.391 256h33.391v33.391h-33.391zM256 289.391h33.391v33.391H256zm-44.522-111.304h33.391v33.391h-33.391zm-33.391 33.391h33.391v33.391h-33.391zm-33.391 33.392h33.391v66.783h-33.391zm211.478 111.304h33.391v33.391h-33.391z" />
-                <path d="M322.783 478.609h-66.782V322.783H222.61v155.826h-77.914V311.652h-33.392v166.957H33.391V300.522H0V512h356.174V389.565h-33.391zM133.565 100.174h33.391v33.391h-33.391zm-33.391 33.391h33.391v33.391h-33.391zM233.739 33.391h66.783v33.391h-66.783zm-66.782 33.392h66.783v33.391h-66.783zM66.783 166.957h33.391v66.783H66.783zm-33.392 66.782h33.391v66.783H33.391z" />
-                <path d="M478.609 0H300.523v33.391h178.086v77.913H311.653v33.392h-66.782v33.391h66.782v-33.391h166.956v77.913H322.784V256h155.825v66.783h-89.044v33.391H512V0z" />
-            </svg>
-            <p className="text-white text-center text-sm font-semibold">Loading ...</p>
+        <div className="fixed inset-0 flex flex-col space-y-3 items-center justify-center z-10 bg-yellow-100">
+            <svg viewBox="0 0 400 400" className="w-48 h-48 animate-bounce" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M117.762 93.5452C177.416 7.2401 286.219 146.205 209.763 203.086C150.352 247.291 80.6021 178.391 108.495 118.441" stroke="#000000" strokeOpacity="0.9" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M88 321.134C133.281 320.049 143.28 234.293 193.563 243.336C205.066 245.405 226.354 258.484 257.428 282.574C280.54 221.917 294.439 187.164 299.126 178.314" stroke="#000000" strokeOpacity="0.9" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M176.828 250.418C172.914 276.105 172.098 314.839 169.104 335" stroke="#000000" strokeOpacity="0.9" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M275.954 176.928C288.293 174.815 299.957 171.054 312 168.608" stroke="#000000" strokeOpacity="0.9" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round"></path> <path opacity="0.503384" d="M311.262 172.768C299.91 187.356 315.455 311.32 311.262 314.353C309.543 315.597 286.14 312.922 257.287 312.922C235.322 312.922 214.817 318.919 206.528 312.922C205.561 312.223 206.528 301.77 206.528 300.05C206.528 270.933 206.34 240.71 202.575 212.098" stroke="#000000" strokeOpacity="0.9" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round"></path> <path opacity="0.503384" d="M236.046 120.922C259.303 120.238 282.269 120.922 305.563 120.922" stroke="#000000" strokeOpacity="0.9" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
         </div>
     )
 }
