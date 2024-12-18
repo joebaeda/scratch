@@ -57,25 +57,6 @@ const Mint: React.FC<MintProps> = ({ fid, username, pfp }) => {
     }
   }, []);
 
-
-  // Notify user
-  const notifyUser = async (title: string, body: string) => {
-    try {
-      const response = await fetch('/api/send-notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fid, title, body }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Notification failed.');
-      }
-    } catch (error) {
-      console.error("Notification error:", error);
-    }
-  };
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
@@ -258,8 +239,25 @@ const Mint: React.FC<MintProps> = ({ fid, username, pfp }) => {
 
     if (isConfirmed) {
       setShowPreview(false)
+      // Notify user
+      async function notifyUser() {
+        try {
+          await fetch('/api/send-notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fid: fid,
+              title: "Congratulations 🎉",
+              body: "One Awesome Scratch of Art has been minted on the Base Network.",
+            }),
+          });
+        } catch (error) {
+          console.error("Notification error:", error);
+        }
+      };
+      notifyUser();
     }
-  }, [isConfirmed, showPreview, showBrushTool])
+  }, [isConfirmed, showPreview, showBrushTool, fid])
 
   const saveDrawing = async () => {
     const canvas = canvasRef.current
@@ -308,8 +306,6 @@ const Mint: React.FC<MintProps> = ({ fid, username, pfp }) => {
         value: parseEther("0.001"),
         args: [`ipfs://${ipfsHash}`],
       });
-
-      await notifyUser("Congratulations 🎉", "One Awesome Scratch of Art has been minted on the Base Network.");
 
     } else {
       console.error("Failed to upload drawing to IPFS.");
