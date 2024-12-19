@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Provider from "./components/Provider";
+import Provider from "./providers/Provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -20,7 +20,7 @@ const frame = {
   version: "next",
   imageUrl: `${appUrl}/og-image.jpg`,
   button: {
-    title: "Start From Scratch!",
+    title: "Mint Your Scratch!",
     action: {
       type: "launch_frame",
       name: "Scratch",
@@ -73,13 +73,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Provider>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans bg-gray-50 text-gray-700`}
-        >
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans bg-gray-50 text-gray-700`}
+      >
+        <Provider>
           {children}
-        </body>
-      </Provider>
+        </Provider>
+      </body>
     </html>
   );
 }

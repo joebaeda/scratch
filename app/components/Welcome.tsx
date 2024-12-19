@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
 import Image from "next/image";
 import { abi } from "@/lib/contract";
-import ScratchLogo from "./ScratchLogo";
+import ScratchLogo from "../icons/ScratchLogo";
 
 interface IWelcome {
   addScratch: () => void;

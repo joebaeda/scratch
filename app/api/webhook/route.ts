@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
           fid,
           title: "Welcome to Scratch of Art Frame!",
           body: "Scratch of Art Frame is now added to your client",
+          targetUrl: "https://scratchnism.vercel.app",
         });
       } else {
         await deleteUserNotificationDetails(fid);
@@ -69,6 +70,7 @@ export async function POST(request: NextRequest) {
         fid,
         title: "Ding ding ding",
         body: "Notifications are now enabled",
+        targetUrl: "https://scratchnism.vercel.app",
       });
 
       break;
