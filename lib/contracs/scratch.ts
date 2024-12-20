@@ -1,4 +1,5 @@
-export const abi = [
+export const scratchAddress ="0x834a79FD83a7E2F4EB7025c46D46E095882E3204";
+export const scratchAbi = [
 	{
 		"inputs": [
 			{

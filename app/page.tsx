@@ -7,24 +7,24 @@ import Image from "next/image";
 import { BaseError, useChainId, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import sdk from "@farcaster/frame-sdk";
 import { base } from "wagmi/chains";
-import { abi } from "@/lib/contract";
 import { parseEther } from "viem";
 
 // Icon
-import ColorPallete from "./icons/ColorPallete";
-import PaintBrush from "./icons/PaintBrush";
-import ColorBucket from "./icons/ColorBucket";
-import Undo from "./icons/Undo";
-import Redo from "./icons/Redo";
-import ToolMenu from "./icons/ToolMenu";
-import Preview from "./icons/Preview";
-import Delete from "./icons/Delete";
-import CloseButton from "./icons/CloseButton";
-import GalleryButton from "./icons/GalleryButton";
+import ColorPallete from "./icons/scratch/ColorPallete";
+import PaintBrush from "./icons/scratch/PaintBrush";
+import ColorBucket from "./icons/scratch/ColorBucket";
+import Undo from "./icons/scratch/Undo";
+import Redo from "./icons/scratch/Redo";
+import ToolMenu from "./icons/scratch/ToolMenu";
+import Preview from "./icons/scratch/Preview";
+import Delete from "./icons/scratch/Delete";
+import CloseButton from "./icons/scratch/CloseButton";
+import GalleryButton from "./icons/scratch/GalleryButton";
 
 // Components
-import Gallery from "./components/Gallery";
-import { useViewer } from "./providers/FrameContextProvider";
+import Gallery from "./components/scratch/Gallery";
+import { useViewer } from "./providers/scratch/FrameContextProvider";
+import { scratchAbi, scratchAddress } from "@/lib/contracs/scratch";
 
 
 export default function Home() {
@@ -245,7 +245,7 @@ export default function Home() {
       // Notify user
       async function notifyUser() {
         try {
-          await fetch('/api/send-notify', {
+          await fetch('/api/scratch/send-notify', {
             method: 'POST',
             mode: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
@@ -276,7 +276,7 @@ export default function Home() {
 
       // Create FormData for Pinata upload
       const formData = new FormData();
-      formData.append('file', blob, `${username}.png`);
+      formData.append('file', blob, `${username}-scratch`);
       try {
 
         const response = await fetch('/api/upload', {
@@ -305,9 +305,9 @@ export default function Home() {
       setEmbedHash(ipfsHash)
 
       writeContract({
-        abi,
+        abi: scratchAbi,
         chainId: base.id,
-        address: "0x834a79FD83a7E2F4EB7025c46D46E095882E3204" as `0x${string}`,
+        address: scratchAddress as `0x${string}`,
         functionName: "mint",
         value: parseEther("0.001"),
         args: [`ipfs://${ipfsHash}`],
@@ -325,7 +325,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="bg-gray-50 h-screen relative">
+    <main className="min-h-screen sm:min-h-[695px] relative">
 
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="flex items-center justify-center p-4">
@@ -582,7 +582,7 @@ export default function Home() {
         </div>
       )}
 
-    </div>
+    </main>
   );
 };
 

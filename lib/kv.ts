@@ -7,7 +7,7 @@ const redis = new Redis({
 });
 
 function getUserNotificationDetailsKey(fid: number): string {
-  return `scratchnism:user:${fid}`;
+  return `scratch:user:${fid}`;
 }
 
 export async function getUserNotificationDetails(

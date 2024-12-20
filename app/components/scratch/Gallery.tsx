@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
 import Image from "next/image";
-import { abi } from "@/lib/contract";
+import { scratchAbi, scratchAddress } from "@/lib/contracs/scratch";
 
 const extractImageUrl = (base64Uri: string): string => {
     try {
@@ -20,16 +20,16 @@ const Gallery = () => {
 
     // Fetch total supply of NFTs
     const { data: totalSupply } = useReadContract({
-        address: "0x834a79FD83a7E2F4EB7025c46D46E095882E3204" as `0x${string}`,
-        abi,
+        address: scratchAddress as `0x${string}`,
+        abi: scratchAbi,
         functionName: "totalSupply",
     });
 
     // Prepare contracts for batch reading
     const tokenIds = totalSupply ? Array.from({ length: Number(totalSupply) }, (_, i) => i + 1) : [];
     const contracts = tokenIds.map((tokenId) => ({
-        address: "0x834a79FD83a7E2F4EB7025c46D46E095882E3204" as `0x${string}`,
-        abi,
+        address: scratchAddress as `0x${string}`,
+        abi: scratchAbi,
         functionName: "tokenURI",
         args: [tokenId],
     }));

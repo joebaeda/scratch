@@ -9,13 +9,13 @@ export async function GET() {
     frame: {
       version: "1",
       name: "Scratch",
-      iconUrl: "https://scratchnism.vercel.app/scratch.png",
+      iconUrl: "https://scratchnism.vercel.app/scratch/scratch.png",
       homeUrl: "https://scratchnism.vercel.app",
-      imageUrl: "https://scratchnism.vercel.app/og-image.jpg",
+      imageUrl: "https://scratchnism.vercel.app/scratch/og-image.jpg",
       buttonTitle: "Mint your Scratch!",
-      splashImageUrl: "https://scratchnism.vercel.app/splash.svg",
+      splashImageUrl: "https://scratchnism.vercel.app/scratch/splash.svg",
       splashBackgroundColor: "#ede4ca",
-      webhookUrl: "https://scratchnism.vercel.app/api/webhook"
+      webhookUrl: "https://scratchnism.vercel.app/api/scratch/webhook"
     },
   };
 

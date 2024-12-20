@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
 import Image from "next/image";
-import { abi } from "@/lib/contract";
-import ScratchLogo from "../icons/ScratchLogo";
+import ScratchLogo from "../../icons/scratch/ScratchLogo";
+import { scratchAbi, scratchAddress } from "@/lib/contracs/scratch";
 
-interface IWelcome {
+interface ICollections {
   addScratch: () => void;
 }
 
@@ -20,7 +20,7 @@ const extractImageUrl = (base64Uri: string): string => {
   }
 };
 
-const Welcome = ({ addScratch }: IWelcome) => {
+const Collections = ({ addScratch }: ICollections) => {
   const [tokenURIs, setTokenURIs] = useState<string[]>([]);
   const [owners, setOwners] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,23 +28,23 @@ const Welcome = ({ addScratch }: IWelcome) => {
 
   // Fetch total supply of NFTs
   const { data: totalSupply } = useReadContract({
-    address: "0x834a79FD83a7E2F4EB7025c46D46E095882E3204" as `0x${string}`,
-    abi,
+    address: scratchAddress as `0x${string}`,
+    abi: scratchAbi,
     functionName: "totalSupply",
   });
 
   // Prepare contracts for batch reading
   const tokenIds = totalSupply ? Array.from({ length: Number(totalSupply) }, (_, i) => i + 1) : [];
   const contracts = tokenIds.map((tokenId) => ({
-    address: "0x834a79FD83a7E2F4EB7025c46D46E095882E3204" as `0x${string}`,
-    abi,
+    address: scratchAddress as `0x${string}`,
+    abi: scratchAbi,
     functionName: "tokenURI",
     args: [tokenId],
   }));
 
   const ownerContracts = tokenIds.map((tokenId) => ({
-    address: "0x834a79FD83a7E2F4EB7025c46D46E095882E3204" as `0x${string}`,
-    abi,
+    address: scratchAddress as `0x${string}`,
+    abi: scratchAbi,
     functionName: "ownerOf",
     args: [tokenId],
   }));
@@ -172,4 +172,4 @@ const Welcome = ({ addScratch }: IWelcome) => {
   );
 };
 
-export default Welcome;
+export default Collections;
