@@ -10,7 +10,7 @@ export async function GET() {
       version: "1",
       name: "Pixel Cast",
       iconUrl: "https://scratchnism.vercel.app/pixel/splash.png",
-      homeUrl: "https://scratchnism.vercel.app",
+      homeUrl: "https://scratchnism.vercel.app/pixel",
       imageUrl: "https://scratchnism.vercel.app/pixel/og-image.jpg",
       buttonTitle: "Cast your Pixel!",
       splashImageUrl: "https://scratchnism.vercel.app/pixel/splash.svg",
