@@ -31,6 +31,7 @@ import { useViewer } from "./providers/FrameContextProvider";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState('#000000');
   const [brushSize, setBrushSize] = useState(5);
@@ -253,7 +254,7 @@ export default function Home() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               fid: fid,
-              notificationDetails: {url,token},
+              notificationDetails: { url, token },
               title: `New Scratch Art by @${username}`,
               body: "One Awesome Scratch of Art has been minted on the Base Network.",
               targetUrl: "https://scratchnism.vercel.app",
@@ -327,24 +328,26 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen sm:min-h-[695px] relative">
+    <main className="min-h-screen sm:min-h-[695px] bg-gray-50 relative">
 
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="flex items-center justify-center p-4">
-          {/* Canvas */}
-          <canvas
-            ref={canvasRef}
-            width={360}
-            height={360}
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={stopDrawing}
-            onMouseOut={stopDrawing}
-            onTouchStart={startDrawing}
-            onTouchMove={draw}
-            onTouchEnd={stopDrawing}
-            className="w-[360px] h-[360px] cursor-crosshair touch-none bg-gray-200 rounded-lg"
-          />
+      <div ref={wrapperRef} className="p-4 flex justify-center items-center touch-none">
+        <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-full p-4 flex-1 flex mx-auto mt-8 items-center justify-center">
+            {/* Canvas */}
+            <canvas
+              ref={canvasRef}
+              width={360}
+              height={360}
+              onMouseDown={startDrawing}
+              onMouseMove={draw}
+              onMouseUp={stopDrawing}
+              onMouseOut={stopDrawing}
+              onTouchStart={startDrawing}
+              onTouchMove={draw}
+              onTouchEnd={stopDrawing}
+              className="block w-full max-w-[360px] bg-gray-200 aspect-square cursor-crosshair shadow-inner touch-none rounded-2xl"
+            />
+          </div>
         </div>
       </div>
 

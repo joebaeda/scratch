@@ -197,7 +197,7 @@ export default function Home() {
 
 
   return (
-    <main className="min-h-[695px] sm:min-h-screen relative">
+    <main className="min-h-[695px] sm:min-h-screen bg-gray-50 relative">
 
       {/* Header Section */}
       <div className="w-full bg-[#4f2d61] p-3 rounded-b-2xl flex flex-row justify-between">
