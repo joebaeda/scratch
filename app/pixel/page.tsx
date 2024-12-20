@@ -19,7 +19,7 @@ import Transaction from '../components/pixel/Transactions';
 import PixelGrid from '../components/pixel/PixelGrid';
 
 // Farcaster
-import { useViewer } from '../providers/pixel/FrameContextProvider';
+import { useViewer } from '../providers/FrameContextProvider';
 
 export default function Home() {
   const [selectedColor, setSelectedColor] = useState('#000000');
@@ -54,14 +54,14 @@ export default function Home() {
       // Notify user
       async function notifyUser() {
         try {
-          await fetch('/api/pixel/send-notify', {
+          await fetch('/api/send-notify', {
             method: 'POST',
             mode: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               fid: fid,
               notificationDetails: {url,token},
-              title: "New Pixel Art Minted!",
+              title: `New Pixel Art Minted! by ${username}`,
               body: "One Awesome Pixel Art has been minted!",
               targetUrl: "https://scratchnism.vercel.app/pixel",
             }),
@@ -72,7 +72,7 @@ export default function Home() {
       };
       notifyUser();
     }
-  }, [fid, isConfirmed, token, url])
+  }, [fid, isConfirmed, token, url, username])
 
   // Load saved art on mount
   useEffect(() => {

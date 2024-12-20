@@ -23,8 +23,10 @@ import GalleryButton from "./icons/scratch/GalleryButton";
 
 // Components
 import Gallery from "./components/scratch/Gallery";
-import { useViewer } from "./providers/scratch/FrameContextProvider";
 import { scratchAbi, scratchAddress } from "@/lib/contracs/scratch";
+
+// Farcaster
+import { useViewer } from "./providers/FrameContextProvider";
 
 
 export default function Home() {
@@ -245,7 +247,7 @@ export default function Home() {
       // Notify user
       async function notifyUser() {
         try {
-          await fetch('/api/scratch/send-notify', {
+          await fetch('/api/send-notify', {
             method: 'POST',
             mode: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
