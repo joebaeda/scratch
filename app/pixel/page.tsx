@@ -28,6 +28,7 @@ export default function Home() {
   const [embedHash, setEmbedHash] = useState("");
   const { fid, username, pfpUrl, url, token } = useViewer();
   const [isCastProcess, setIsCastProcess] = useState(false);
+  const [isCastSuccess, setIsCastSuccess] = useState(false);
 
   // Wagmi
   const chainId = useChainId();
@@ -72,7 +73,31 @@ export default function Home() {
       };
       notifyUser();
     }
-  }, [fid, isConfirmed, token, url, username])
+
+    if (isCastSuccess) {
+      // Notify user
+      async function notifyCast() {
+        try {
+          await fetch('/api/send-notify', {
+            method: 'POST',
+            mode: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fid: fid,
+              notificationDetails: { url, token },
+              title: `New Pixel Art Created!`,
+              body: `One Awesome Pixel of Art by @${username} has been created.`,
+              targetUrl: "https://scratchnism.vercel.app/pixel",
+            }),
+          });
+        } catch (error) {
+          console.error("Notification error:", error);
+        }
+      };
+      notifyCast();
+    }
+
+  }, [fid, isCastSuccess, isConfirmed, token, url, username])
 
   // Load saved art on mount
   useEffect(() => {
@@ -170,7 +195,7 @@ export default function Home() {
         console.log("IPFS hash received:", ipfsHash);
 
         // Cast proccess
-        const intent = `https://warpcast.com/~/compose?text=this%20is%20really%20cool%20-%20just%20created%20one!%20Frame%20by%20@joebaeda&embeds[]=https://gateway.pinata.cloud/ipfs/${ipfsHash}%20https://pixelcast.vercel.app`;
+        const intent = `https://warpcast.com/~/compose?text=this%20is%20really%20cool%20-%20just%20created%20one!%20Frame%20by%20@joebaeda&embeds[]=https://gateway.pinata.cloud/ipfs/${ipfsHash}%20https://scratchnism.vercel.app/pixel`;
         
         await sdk.actions.openUrl(intent);
 
@@ -183,6 +208,7 @@ export default function Home() {
       console.error("Error during the cast process:", error);
     } finally {
       setIsCastProcess(false)
+      setIsCastSuccess(true)
     }
   };
 

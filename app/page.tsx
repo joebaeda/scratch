@@ -45,6 +45,8 @@ export default function Home() {
   const [previewUrl, setPreviewUrl] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
+  const [isCastProcess, setIsCastProcess] = useState(false);
+  const [isCastSuccess, setIsCastSuccess] = useState(false);
 
   // Farcaster
   const { fid, username, pfpUrl, url, token } = useViewer();
@@ -256,7 +258,7 @@ export default function Home() {
               fid: fid,
               notificationDetails: { url, token },
               title: `New Scratch Art by @${username}`,
-              body: "One Awesome Scratch of Art has been minted on the Base Network.",
+              body: "One Awesome Scratch of Art has been minted on the @base Network.",
               targetUrl: "https://scratchnism.vercel.app",
             }),
           });
@@ -266,7 +268,32 @@ export default function Home() {
       };
       notifyUser();
     }
-  }, [isConfirmed, showPreview, showBrushTool, fid, url, token, username])
+
+    if (isCastSuccess) {
+      setShowPreview(false)
+      // Notify user
+      async function notifyCast() {
+        try {
+          await fetch('/api/send-notify', {
+            method: 'POST',
+            mode: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fid: fid,
+              notificationDetails: { url, token },
+              title: `New Scratch Art Created!`,
+              body: `One Awesome Scratch of Art by @${username} has been created.`,
+              targetUrl: "https://scratchnism.vercel.app",
+            }),
+          });
+        } catch (error) {
+          console.error("Notification error:", error);
+        }
+      };
+      notifyCast();
+    }
+
+  }, [isConfirmed, showPreview, showBrushTool, fid, url, token, username, isCastSuccess])
 
   const saveDrawing = async () => {
     const canvas = canvasRef.current
@@ -321,6 +348,37 @@ export default function Home() {
     }
   };
 
+  // Handle Cast
+  const handleCast = async () => {
+    try {
+      setIsCastProcess(true)
+      // Show a loading state
+      console.log("Saving image to IPFS...");
+
+      // Save the image and retrieve the IPFS hash
+      const ipfsHash = await saveDrawing();
+
+      if (ipfsHash) {
+        console.log("IPFS hash received:", ipfsHash);
+
+        // Cast proccess
+        const intent = `https://warpcast.com/~/compose?text=this%20is%20really%20cool%20-%20just%20created%20one!%20Frame%20by%20@joebaeda&embeds[]=https://gateway.pinata.cloud/ipfs/${ipfsHash}%20https://scratchnism.vercel.app`;
+
+        await sdk.actions.openUrl(intent);
+
+        setIsCastProcess(false)
+
+      } else {
+        console.error("Failed to upload drawing to IPFS.");
+      }
+    } catch (error) {
+      console.error("Error during the cast process:", error);
+    } finally {
+      setIsCastProcess(false)
+      setIsCastSuccess(true)
+    }
+  };
+
   const linkToWarpcast = useCallback((embedHash?: string) => {
     if (embedHash) {
       sdk.actions.openUrl(`https://warpcast.com/~/compose?text=this%20is%20really%20cool%20-%20just%20minted%20one!&embeds[]=https://gateway.pinata.cloud/ipfs/${embedHash}`);
@@ -332,7 +390,7 @@ export default function Home() {
 
       <div ref={wrapperRef} className="p-4 flex justify-center items-center touch-none">
         <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-full p-4 flex-1 flex mx-auto mt-8 items-center justify-center">
+          <div className="w-full p-4 flex-1 flex mx-auto mt-8 items-center justify-center">
             {/* Canvas */}
             <canvas
               ref={canvasRef}
@@ -487,14 +545,14 @@ export default function Home() {
             <div className="flex flex-row gap-2 w-full">
               <button
                 onClick={() => setShowPreview(false)}
-                disabled={isPending}
+                disabled={isPending || isCastProcess}
                 className="w-full py-2 rounded-2xl bg-blue-500 text-white text-2xl font-semibold hover:bg-blue-700 transition"
               >
                 Close
               </button>
               <button
                 className="w-full py-2 rounded-2xl bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-700 transition"
-                disabled={chainId !== base.id || isPending}
+                disabled={chainId !== base.id || isCastProcess || isPending}
                 onClick={handleMint}
               >
                 {isPending
@@ -504,6 +562,14 @@ export default function Home() {
                     : "Mint"}
               </button>
             </div>
+            {/* Make a Cast */}
+            <button
+              disabled={isConfirming || isCastProcess || isPending}
+              onClick={handleCast}
+              className="w-full py-2 rounded-2xl bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-700 transition"
+            >
+              {isCastProcess ? "Process..." : "Make a Cast"}
+            </button>
           </div>
         </div>
 

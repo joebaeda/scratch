@@ -18,14 +18,14 @@ const appUrl = "https://scratchnism.vercel.app/pixel";
 
 const frame = {
   version: "next",
-  imageUrl: `${appUrl}/pixel/og-image.jpg`,
+  imageUrl: `${appUrl}/og-image.jpg`,
   button: {
     title: "Cast Your Pixel",
     action: {
       type: "launch_frame",
       name: "Pixel Cast",
       url: appUrl,
-      splashImageUrl: `${appUrl}/pixel/splash.svg`,
+      splashImageUrl: `${appUrl}/splash.svg`,
       splashBackgroundColor: "#ede4ca",
     },
   },
