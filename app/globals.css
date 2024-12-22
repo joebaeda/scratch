@@ -5,6 +5,7 @@
 :root {
   --background: #ffffff; /* Default light mode background */
   --foreground: #171717; /* Default light mode foreground */
+  --font-comic-sans: 'Comic Sans', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,5 +18,5 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-comic-sans);
 }

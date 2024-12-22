@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
 import Image from "next/image";
-import ScratchLogo from "../../icons/scratch/ScratchLogo";
+import ScratchLogo from "../icons/ScratchLogo";
 import { scratchAbi, scratchAddress } from "@/lib/contracs/scratch";
 
 interface ICollections {
