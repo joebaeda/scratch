@@ -331,7 +331,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen sm:min-h-[695px] bg-gray-50 relative">
+    <main className="sm:min-h-screen min-h-[695px] bg-gray-50 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] relative">
 
       {/* Header */}
       <div className="w-full p-4 flex flex-row justify-between items-center space-x-4">
