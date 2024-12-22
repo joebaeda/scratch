@@ -18,7 +18,7 @@ const frame = {
     title: "Mint Your Scratch!",
     action: {
       type: "launch_frame",
-      name: "Scratch",
+      name: "Scratch of Art",
       url: appUrl,
       splashImageUrl: `${appUrl}/splash.svg`,
       splashBackgroundColor: "#ede4ca",

@@ -8,7 +8,7 @@ export async function GET() {
     },
     frame: {
       version: "0.1.0",
-      name: "Scratch",
+      name: "Scratch of Art",
       iconUrl: "https://scratchnism.vercel.app/scratch.png",
       homeUrl: "https://scratchnism.vercel.app",
       imageUrl: "https://scratchnism.vercel.app/og-image.jpg",
