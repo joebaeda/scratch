@@ -15,7 +15,7 @@ const frame = {
   version: "next",
   imageUrl: `${appUrl}/og-image.jpg`,
   button: {
-    title: "Mint Your Scratch!",
+    title: "Let's Scratching!",
     action: {
       type: "launch_frame",
       name: "Scratch of Art",
