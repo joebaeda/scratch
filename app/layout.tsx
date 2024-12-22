@@ -30,10 +30,10 @@ export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Scratch | Start from Scratch",
+    title: "Scratch of Art",
     description: "Drawing like an artist and Mint to the base network instantly.",
     openGraph: {
-      title: "Scratch | Start from Scratch",
+      title: "Scratch of Art",
       description: "Drawing like an artist and Mint to the base network instantly.",
       url: 'https://scratchnism.vercel.app',
       type: 'website',
@@ -42,13 +42,13 @@ export async function generateMetadata(): Promise<Metadata> {
           url: 'https://scratchnism.vercel.app/og-image.jpg',
           width: 1200,
           height: 630,
-          alt: 'Start from Scratch',
+          alt: 'Mint your Scratch',
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: "Scratch | Start from Scratch",
+      title: "Scratch of Art",
       description: "Drawing like an artist and Mint to the base network instantly.",
       images: ['https://scratchnism.vercel.app/og-image.jpg'],
     },
