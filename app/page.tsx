@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { SketchPicker } from "react-color";
 import FloodFill from "q-floodfill";
 import Image from "next/image";
-import { BaseError, useChainId, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { BaseError, useChainId, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import sdk from "@farcaster/frame-sdk";
 import { base } from "wagmi/chains";
 import { parseEther } from "viem";
@@ -47,6 +47,13 @@ export default function Home() {
 
   const chainId = useChainId();
   const { data: hash, error, isPending, writeContract } = useWriteContract()
+
+  // Fetch tokenId
+  const { data: tokenId } = useReadContract({
+    address: scratchAddress as `0x${string}`,
+    abi: scratchAbi,
+    functionName: "totalSupply",
+  });
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
@@ -324,9 +331,9 @@ export default function Home() {
     }
   };
 
-  const linkToWarpcast = useCallback((embedHash?: string) => {
-    if (embedHash) {
-      sdk.actions.openUrl(`https://warpcast.com/~/compose?text=this%20is%20really%20cool%20-%20just%20minted%20one!&embeds[]=https://gateway.pinata.cloud/ipfs/${embedHash}`);
+  const linkToWarpcast = useCallback((tokenId?: string) => {
+    if (tokenId) {
+      sdk.actions.openUrl(`https://warpcast.com/~/compose?text=this%20is%20really%20cool%20-%20just%20minted%20one!&embeds[]=https://scratchnism.vercel.app/${tokenId}`);
     }
   }, []);
 
@@ -559,7 +566,7 @@ export default function Home() {
               </button>
               <button
                 className="w-full py-4 bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-600 transition"
-                onClick={() => linkToWarpcast(embedHash)}
+                onClick={() => linkToWarpcast(String(tokenId))}
               >
                 Cast
               </button>

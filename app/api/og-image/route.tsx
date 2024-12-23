@@ -1,177 +1,134 @@
+import { scratchAbi, scratchAddress } from '@/lib/contracs/scratch';
 import { ImageResponse } from 'next/og';
+import { createPublicClient, http } from 'viem';
+import { base } from 'viem/chains';
 
 export const runtime = 'edge';
 
+// Helper to decode Base64 tokenURI and extract the image URL
+const extractImageUrl = (base64Uri: string): string => {
+  try {
+    const json = JSON.parse(atob(base64Uri.split(',')[1])); // Decode Base64 and parse JSON
+    return json.image || ''; // Return the image URL from the decoded JSON
+  } catch (error) {
+    console.error('Error decoding Base64 tokenURI:', error);
+    return '';
+  }
+};
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const ipfsHash = searchParams.get('ipfsHash');
-  const artistName = searchParams.get('artistname') || 'Unknown Artist';
-  const artistPfp = searchParams.get('artistpfp');
+  const tokenId = searchParams.get('tokenId');
 
-  const fontData = await fetch(
-    new URL('../../fonts/Comic-Sans-MS.ttf', import.meta.url)
-  ).then((res) => res.arrayBuffer());
-
-  if (!ipfsHash && !artistName && !artistPfp) {
+  if (!tokenId) {
     return new ImageResponse(
       (
         <div
           style={{
             display: 'flex',
-            fontSize: 60,
             color: 'white',
             background: 'linear-gradient(to bottom right, #4f2d61, #2f1b3a)',
             width: '100%',
             height: '100%',
             justifyContent: 'center',
             alignItems: 'center',
-            fontFamily: 'Comic Sans',
-            fontWeight: 'normal',
+            fontSize: 24,
+            fontWeight: 'bold',
           }}
         >
           Scratch of Art Project
         </div>
       ),
       {
-        width: 1200,
-        height: 630,
-        fonts: [
-          {
-            name: 'Comic Sans',
-            data: fontData,
-            style: 'normal',
-            weight: 400,
-          },
-        ],
+        width: 402,
+        height: 392,
       }
     );
   }
 
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          display: 'flex',
-          fontSize: 24,
-          color: 'white',
-          background: 'linear-gradient(to bottom right, #4f2d61, #2f1b3a)',
-          width: '100%',
-          height: '100%',
-          fontFamily: 'Comic Sans',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* NFT Image (Left) */}
-        {ipfsHash && (
-          <div
-            style={{
-              position: 'absolute',
-              left: '-5%',
-              top: '-5%',
-              width: '60%',
-              height: '110%',
-              transform: 'skew(-10deg)',
-              overflow: 'hidden',
-            }}
-          >
-            <img
-              src={`https://gateway.pinata.cloud/ipfs/${ipfsHash}`}
-              alt="NFT"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transform: 'skew(10deg) scale(1.2)',
-              }}
-            />
-          </div>
-        )}
+  const publicClient = createPublicClient({
+    chain: base,
+    transport: http(),
+  });
 
-        {/* Artist Image (Right) */}
-        {artistPfp && (
-          <div
-            style={{
-              position: 'absolute',
-              right: '-5%',
-              top: '-5%',
-              width: '60%',
-              height: '110%',
-              transform: 'skew(-10deg)',
-              overflow: 'hidden',
-            }}
-          >
-            <img
-              src={artistPfp}
-              alt="Artist"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transform: 'skew(10deg) scale(1.2)',
-              }}
-            />
-          </div>
-        )}
+  try {
+    const tokenURI: string = await publicClient.readContract({
+      address: scratchAddress as `0x${string}`,
+      abi: scratchAbi,
+      functionName: 'tokenURI',
+      args: [BigInt(tokenId)],
+    });
 
-        {/* Central Content */}
+    const imageUrl = extractImageUrl(tokenURI);
+
+    if (!imageUrl) {
+      throw new Error('Image URL not found in tokenURI');
+    }
+
+    const formattedUrl = imageUrl.startsWith('ipfs://')
+      ? `https://gateway.pinata.cloud/ipfs/${imageUrl.slice(7)}`
+      : imageUrl;
+
+    return new ImageResponse(
+      (
         <div
           style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            textAlign: 'center',
-            zIndex: 10,
-            backgroundColor: 'rgba(47, 27, 58, 0.8)',
-            padding: '40px',
-            borderRadius: '20px',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+            display: 'flex',
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            backgroundImage: 'radial-gradient(#e5e7eb 1px, transparent 1px)',
+            backgroundSize: '16px 16px',
           }}
         >
-          <h1
+          <div
             style={{
-              fontSize: '48px',
-              fontWeight: 'normal',
-              marginBottom: '20px',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundImage: `url(${formattedUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              transform: 'scale(1.2)',
+              maskImage: 'radial-gradient(ellipse 50% 50% at 50% 50%, #000 60%, transparent 100%)',
+              WebkitMaskImage: 'radial-gradient(ellipse 50% 50% at 50% 50%, #000 60%, transparent 100%)',
             }}
-          >
-            {artistName}
-          </h1>
-          <p
-            style={{
-              fontSize: '36px',
-              fontWeight: 'normal',
-              marginBottom: '20px',
-            }}
-          >
-            Scratch of Art Project
-          </p>
-          <p
-            style={{
-              fontSize: '24px',
-              fontWeight: 'normal',
-              fontStyle: 'italic',
-            }}
-          >
-            &quot;Where creativity meets chaos, and pixels party!&quot;
-          </p>
+          />
         </div>
-      </div>
-    ),
-    {
-      width: 1200,
-      height: 630,
-      fonts: [
-        {
-          name: 'Comic Sans',
-          data: fontData,
-          style: 'normal',
-          weight: 400,
-        },
-      ],
-    }
-  );
+      ),
+      {
+        width: 402,
+        height: 392,
+      }
+    );
+  } catch (error) {
+    console.error('Error fetching tokenURI or generating image:', error);
+
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            display: 'flex',
+            color: 'white',
+            background: 'linear-gradient(to bottom right, #4f2d61, #2f1b3a)',
+            width: '100%',
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            fontSize: 24,
+            fontWeight: 'bold',
+          }}
+        >
+          Error Loading Token
+        </div>
+      ),
+      {
+        width: 402,
+        height: 392,
+      }
+    );
+  }
 }
 
