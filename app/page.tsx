@@ -41,19 +41,13 @@ export default function Home() {
   const [showTool, setShowTool] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [pixelId, setPixelId] = useState("")
 
   // Farcaster
   const { fid, username, pfpUrl, url, token, added, safeAreaInsets } = useViewer();
 
   const chainId = useChainId();
   const { data: hash, error, isPending, writeContract } = useWriteContract()
-
-  // Fetch tokenId
-  const { data: tokenId } = useReadContract({
-    address: scratchAddress as `0x${string}`,
-    abi: scratchAbi,
-    functionName: "totalSupply",
-  });
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
@@ -66,10 +60,27 @@ export default function Home() {
     }
   }, []);
 
+  const linkToWarpcast = useCallback((pixelId?: string) => {
+    if (pixelId) {
+      sdk.actions.openUrl(`https://warpcast.com/~/compose?text=this%20is%20really%20cool%20-%20just%20minted%20one!&embeds[]=https://scratchnism.vercel.app/${pixelId}`);
+    }
+  }, []);
+
   useEffect(() => {
     if (!added) {
       sdk.actions.addFrame()
     }
+
+    if (isConfirmed) {
+      // Fetch tokenId
+      const { data: tokenId } = useReadContract({
+        address: scratchAddress as `0x${string}`,
+        abi: scratchAbi,
+        functionName: "totalSupply",
+      });
+      setPixelId(String(tokenId))
+    }
+
   })
 
   useEffect(() => {
@@ -331,12 +342,6 @@ export default function Home() {
     }
   };
 
-  const linkToWarpcast = useCallback((tokenId?: string) => {
-    if (tokenId) {
-      sdk.actions.openUrl(`https://warpcast.com/~/compose?text=this%20is%20really%20cool%20-%20just%20minted%20one!&embeds[]=https://scratchnism.vercel.app/${tokenId}`);
-    }
-  }, []);
-
   return (
     <main
       className="sm:min-h-screen min-h-[695px] bg-gray-50 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] relative"
@@ -570,7 +575,7 @@ export default function Home() {
               </button>
               <button
                 className="w-full py-4 bg-purple-500 text-white text-2xl font-semibold hover:bg-purple-600 transition"
-                onClick={() => linkToWarpcast(String(tokenId))}
+                onClick={() => linkToWarpcast(pixelId)}
               >
                 Cast
               </button>

@@ -35,9 +35,9 @@ export default function TokenDetails({
         args: [BigInt(tokenId)],
     });
 
-    const linkToOpensea = useCallback((tokenId: string) => {
+    const linkToMarket = useCallback((tokenId: string) => {
         if (tokenId) {
-            sdk.actions.openUrl(`https://opensea.io/assets/base/${scratchAddress}/${tokenId}`);
+            sdk.actions.openUrl(`https://magiceden.io/item-details/base/${scratchAddress}/${tokenId}`);
         }
     }, []);
 
@@ -94,7 +94,7 @@ export default function TokenDetails({
 
                         <button
                             className="w-full py-4 bg-[#311535] text-white text-xl rounded-2xl font-semibold hover:bg-[#522358] transition"
-                            onClick={() => linkToOpensea(tokenId)}
+                            onClick={() => linkToMarket(tokenId)}
                         >
                             Make Offer
                         </button>
