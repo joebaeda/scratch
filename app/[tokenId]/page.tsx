@@ -26,7 +26,7 @@ export default function TokenDetails({
 }) {
     const { tokenId } = use(params)
     const [tokenURIs, setTokenURIs] = useState("");
-    const { username, pfpUrl } = useViewer();
+    const { username, pfpUrl, safeAreaInsets } = useViewer();
 
     const { data: tokenURIData } = useReadContract({
         address: scratchAddress as `0x${string}`,
@@ -53,7 +53,10 @@ export default function TokenDetails({
     };
 
     return (
-        <main className="sm:min-h-screen min-h-[695px] bg-gray-50 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] relative">
+        <main className="sm:min-h-screen min-h-[695px] bg-gray-50 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] relative"
+            style={typeof safeAreaInsets === 'undefined'
+                ? undefined
+                : { paddingBottom: safeAreaInsets.bottom * 2.25 }}>
 
             {/* Header section */}
             <div className="w-full p-4 flex flex-row justify-between items-center space-x-4">

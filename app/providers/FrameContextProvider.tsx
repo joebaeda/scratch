@@ -1,4 +1,4 @@
-import sdk, { FrameContext } from '@farcaster/frame-sdk';
+import sdk, { FrameContext, SafeAreaInsets } from '@farcaster/frame-sdk';
 import React from 'react';
 
 import { useFrameSplash } from './FrameSplashProvider';
@@ -29,6 +29,7 @@ type FrameContextProviderContextValue = {
   url: string | undefined;
   token: string | undefined;
   added: boolean;
+  safeAreaInsets?: SafeAreaInsets; 
 };
 
 const FrameContextProviderContext =
@@ -76,7 +77,7 @@ function FrameContextProvider({ children }: React.PropsWithChildren) {
 
   return (
     <FrameContextProviderContext.Provider
-      value={{ fid: frameContext.user.fid, username: frameContext.user.username, pfpUrl: frameContext.user.pfpUrl, url: frameContext.client.notificationDetails?.url, token: frameContext.client.notificationDetails?.token, added: frameContext.client.added }}
+      value={{ fid: frameContext.user.fid, username: frameContext.user.username, pfpUrl: frameContext.user.pfpUrl, url: frameContext.client.notificationDetails?.url, token: frameContext.client.notificationDetails?.token, added: frameContext.client.added, safeAreaInsets: frameContext.client.safeAreaInsets }}
     >
       {children}
     </FrameContextProviderContext.Provider>

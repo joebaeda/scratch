@@ -43,7 +43,7 @@ export default function Home() {
   const [showPreview, setShowPreview] = useState(false);
 
   // Farcaster
-  const { fid, username, pfpUrl, url, token, added } = useViewer();
+  const { fid, username, pfpUrl, url, token, added, safeAreaInsets } = useViewer();
 
   const chainId = useChainId();
   const { data: hash, error, isPending, writeContract } = useWriteContract()
@@ -338,29 +338,33 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="sm:min-h-screen min-h-[695px] bg-gray-50 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] relative">
+    <main
+      className="sm:min-h-screen min-h-[695px] bg-gray-50 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] relative"
+      style={typeof safeAreaInsets === 'undefined'
+        ? undefined
+        : { paddingBottom: safeAreaInsets.bottom * 2.25 }}>
 
       {/* Header */}
       <div className="w-full p-4 flex flex-row justify-between items-center space-x-4">
 
-          {showTool ? (
-            <button
-              onClick={() => setShowTool(false)}
-              className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
-              <ToolMenu
-                width={34}
-                height={34} />
-            </button>
-          ) : (<button
-            onClick={() => setShowTool(true)}
+        {showTool ? (
+          <button
+            onClick={() => setShowTool(false)}
             className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
             <ToolMenu
               width={34}
               height={34} />
           </button>
-          )}
+        ) : (<button
+          onClick={() => setShowTool(true)}
+          className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400">
+          <ToolMenu
+            width={34}
+            height={34} />
+        </button>
+        )}
 
-          <div className="flex flex-row space-x-4">
+        <div className="flex flex-row space-x-4">
           <button
             className="p-2 hover:bg-gray-200 border border-spacing-2 border-blue-400 shadow-md rounded-2xl bg-blue-200 active:bg-blue-400"
             onClick={() => setShowPreview(true)}
@@ -372,7 +376,7 @@ export default function Home() {
             <Image className="object-cover rounded-l-2xl" src={pfpUrl as string} alt={username as string} width={50} height={50} priority />
             <p className="font-bold pr-3">{username}</p>
           </div>
-          </div>
+        </div>
 
       </div>
 
@@ -397,7 +401,7 @@ export default function Home() {
 
       {showTool && (
         <div className="absolute flex flex-col space-y-6 top-4 left-4">
-          
+
           {/* Menu Opened */}
           <button
             onClick={() => setShowTool(false)}
