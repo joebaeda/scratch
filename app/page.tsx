@@ -81,7 +81,7 @@ export default function Home() {
       setPixelId(String(tokenId))
     }
 
-  })
+  },[isConfirmed, added])
 
   useEffect(() => {
     const canvas = canvasRef.current;
