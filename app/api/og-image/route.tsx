@@ -20,28 +20,92 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const tokenId = searchParams.get('tokenId');
 
+  // Load the custom font
+  const comicSansData = await fetch(new URL('../../fonts/Comic-Sans-MS.ttf', import.meta.url)).then(
+    (res) => res.arrayBuffer()
+  );
+
   if (!tokenId) {
     return new ImageResponse(
       (
-        <div
-          style={{
-            display: 'flex',
-            color: 'white',
-            background: 'linear-gradient(to bottom right, #4f2d61, #2f1b3a)',
-            width: '100%',
-            height: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontSize: 24,
-            fontWeight: 'bold',
-          }}
-        >
-          Scratch of Art Project
+        <div style={{
+          display: 'flex',
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#f1f1f1',
+          backgroundSize: '30px 30px',
+          background: 'radial-gradient(#e8e1b0 10%, transparent 10%)',
+        }}>
+
+          {/* Default Image left */}
+          <div
+            style={{
+              display: 'flex',
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+            }}
+          >
+
+            <div
+              style={{
+                position: 'absolute',
+                left: '20%',
+                top: '50%',
+                transform: 'translate(-20%, -50%)',
+                width: '402px',
+                height: '420px',
+                borderWidth: 10,
+                borderColor: '#e8e1b0',
+                borderRadius: '5%',
+                backgroundColor: '#d1c997',
+                backgroundImage: `url('https://scratchnism.vercel.app/splash.svg')`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+              }}
+            />
+          </div>
+
+          {/* Title Right */}
+          <div
+            style={{
+              position: 'absolute',
+              display: 'flex',
+              flexDirection: 'column',
+              right: '20%',
+              top: '50%',
+              transform: 'translate(20%, -50%)',
+              width: '402px',
+              height: '392px',
+              fontSize: 92,
+              fontWeight: '700px',
+              textAlign: 'center',
+              justifyContent: 'center',
+              alignItems: 'center',
+              fontFamily: 'Comic Sans MS',
+              color: '#24231d',
+              background: 'radial-gradient(#452654 26%, transparent 10%)',
+            }}
+          >
+            <p style={{ margin: 0 }}>Scratch</p>
+            <p style={{ margin: 0, color: '#f1f1f1' }}>of</p>
+            <p style={{ margin: 0 }}>Art</p>
+          </div>
+
+
         </div>
       ),
       {
-        width: 402,
-        height: 392,
+        width: 1200,
+        height: 600,
+        fonts: [
+          {
+            name: 'Comic Sans MS',
+            data: comicSansData,
+            style: 'normal',
+          },
+        ],
       }
     );
   }
@@ -71,36 +135,84 @@ export async function GET(request: Request) {
 
     return new ImageResponse(
       (
-        <div
-          style={{
-            display: 'flex',
-            position: 'relative',
-            width: '100%',
-            height: '100%',
-            backgroundImage: 'radial-gradient(#e5e7eb 1px, transparent 1px)',
-            backgroundSize: '16px 16px',
-          }}
-        >
+        <div style={{
+          display: 'flex',
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#f1f1f1',
+          backgroundSize: '30px 30px',
+          background: 'radial-gradient(#e8e1b0 10%, transparent 10%)',
+        }}>
+
+          {/* NFT Image left */}
+          <div
+            style={{
+              display: 'flex',
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+            }}
+          >
+
+            <div
+              style={{
+                position: 'absolute',
+                left: '20%',
+                top: '50%',
+                transform: 'translate(-20%, -50%)',
+                width: '402px',
+                height: '420px',
+                borderWidth: 10,
+                borderColor: '#e8e1b0',
+                borderRadius: '5%',
+                backgroundColor: '#d1c997',
+                backgroundImage: `url(${formattedUrl})`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+              }}
+            />
+          </div>
+
+          {/* Title Right */}
           <div
             style={{
               position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              backgroundImage: `url(${formattedUrl})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              transform: 'scale(1.2)',
-              maskImage: 'radial-gradient(ellipse 50% 50% at 50% 50%, #000 60%, transparent 100%)',
-              WebkitMaskImage: 'radial-gradient(ellipse 50% 50% at 50% 50%, #000 60%, transparent 100%)',
+              display: 'flex',
+              flexDirection: 'column',
+              right: '20%',
+              top: '50%',
+              transform: 'translate(20%, -50%)',
+              width: '402px',
+              height: '392px',
+              fontSize: 92,
+              fontWeight: '700px',
+              textAlign: 'center',
+              justifyContent: 'center',
+              alignItems: 'center',
+              fontFamily: 'Comic Sans MS',
+              color: '#24231d',
+              background: 'radial-gradient(#452654 26%, transparent 10%)',
             }}
-          />
+          >
+            <p style={{ margin: 0 }}>Scratch</p>
+            <p style={{ margin: 0, color: '#f1f1f1' }}>of</p>
+            <p style={{ margin: 0 }}>Art</p>
+          </div>
+
+
         </div>
       ),
       {
-        width: 402,
-        height: 392,
+        width: 1200,
+        height: 600,
+        fonts: [
+          {
+            name: 'Comic Sans MS',
+            data: comicSansData,
+            style: 'normal',
+          },
+        ],
       }
     );
   } catch (error) {
@@ -108,25 +220,83 @@ export async function GET(request: Request) {
 
     return new ImageResponse(
       (
-        <div
-          style={{
-            display: 'flex',
-            color: 'white',
-            background: 'linear-gradient(to bottom right, #4f2d61, #2f1b3a)',
-            width: '100%',
-            height: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontSize: 24,
-            fontWeight: 'bold',
-          }}
-        >
-          Error Loading Token
+        <div style={{
+          display: 'flex',
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#f1f1f1',
+          backgroundSize: '30px 30px',
+          background: 'radial-gradient(#e8e1b0 10%, transparent 10%)',
+        }}>
+
+          {/* Default Image left */}
+          <div
+            style={{
+              display: 'flex',
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+            }}
+          >
+
+            <div
+              style={{
+                position: 'absolute',
+                left: '20%',
+                top: '50%',
+                transform: 'translate(-20%, -50%)',
+                width: '402px',
+                height: '420px',
+                borderWidth: 10,
+                borderColor: '#e8e1b0',
+                borderRadius: '5%',
+                backgroundColor: '#d1c997',
+                backgroundImage: `url('https://scratchnism.vercel.app/scratch-not-found.svg')`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+              }}
+            />
+          </div>
+
+          {/* Title Right */}
+          <div
+            style={{
+              position: 'absolute',
+              display: 'flex',
+              flexDirection: 'column',
+              right: '20%',
+              top: '50%',
+              transform: 'translate(20%, -50%)',
+              width: '402px',
+              height: '392px',
+              fontSize: 92,
+              fontWeight: '700px',
+              textAlign: 'center',
+              justifyContent: 'center',
+              alignItems: 'center',
+              fontFamily: 'Comic Sans MS',
+              color: '#24231d',
+            }}
+          >
+            <p style={{ margin: 0 }}>Scratch</p>
+            <p style={{ margin: 20, color: '#750c08', fontSize: 102, textDecoration: 'underline' }}>Not</p>
+            <p style={{ margin: 0 }}>Found</p>
+          </div>
+
+
         </div>
       ),
       {
-        width: 402,
-        height: 392,
+        width: 1200,
+        height: 600,
+        fonts: [
+          {
+            name: 'Comic Sans MS',
+            data: comicSansData,
+            style: 'normal',
+          },
+        ],
       }
     );
   }

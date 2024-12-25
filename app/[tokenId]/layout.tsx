@@ -35,8 +35,8 @@ export async function generateMetadata({
                 images: [
                     {
                         url: ogImageUrl, // Use the dynamically generated og-image URL
-                        width: 402,
-                        height: 392,
+                        width: 1200,
+                        height: 600,
                         alt: `Scratch of Art for Token #${tokenId}`,
                     },
                 ],

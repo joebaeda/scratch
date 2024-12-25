@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
         {
           url: 'https://scratchnism.vercel.app/og-image.jpg',
           width: 1200,
-          height: 630,
+          height: 600,
           alt: 'Mint your Scratch',
         },
       ],
