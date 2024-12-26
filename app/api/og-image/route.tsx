@@ -106,6 +106,9 @@ export async function GET(request: Request) {
             style: 'normal',
           },
         ],
+        headers: {
+          "Cache-Control": "no-store",
+        },
       }
     );
   }
@@ -133,7 +136,7 @@ export async function GET(request: Request) {
       ? `https://gateway.pinata.cloud/ipfs/${imageUrl.slice(7)}`
       : imageUrl;
 
-    return new ImageResponse(
+    const scratchImage = new ImageResponse(
       (
         <div style={{
           display: 'flex',
@@ -215,6 +218,19 @@ export async function GET(request: Request) {
         ],
       }
     );
+
+    const headers = new Headers(scratchImage.headers);
+    headers.set(
+      "Cache-Control",
+      "public, s-maxage=300, stale-while-revalidate=59"
+    );
+
+    return new Response(scratchImage.body, {
+      headers,
+      status: scratchImage.status,
+      statusText: scratchImage.statusText,
+    });
+
   } catch (error) {
     console.error('Error fetching tokenURI or generating image:', error);
 
@@ -297,6 +313,9 @@ export async function GET(request: Request) {
             style: 'normal',
           },
         ],
+        headers: {
+          "Cache-Control": "no-store",
+        },
       }
     );
   }
